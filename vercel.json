@@ -11,12 +11,16 @@
   ],
   "routes": [
     {
+      "src": "/map/api/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/index.py"
     },
     {
-      "src": "/map/(.*)",
-      "dest": "/api/index.py"
+      "src": "/map/?",
+      "dest": "/public/map.html"
     },
     {
       "src": "/(.*)",
