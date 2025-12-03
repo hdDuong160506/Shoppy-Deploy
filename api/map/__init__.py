@@ -6,8 +6,8 @@ from flask import Blueprint
 map_bp = Blueprint(
     'map_bp', 
     __name__, 
-    static_folder='../../static',
-    template_folder='../../static'
+    static_folder='../../public',
+    template_folder='../../public'
 )
 
 # Import routes để gắn logic vào Blueprint này
