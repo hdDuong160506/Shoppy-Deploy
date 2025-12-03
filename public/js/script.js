@@ -265,7 +265,7 @@ async function loadSuggestedProducts(locationName = null) {
 		}
 
 		// Gọi API
-		const res = await fetch('http://127.0.0.1:5000/api/suggest_products', {
+		const res = await fetch('/api/suggest_products', {
 			method : 'POST',
 			headers : {
 				'Content-Type' : 'application/json'

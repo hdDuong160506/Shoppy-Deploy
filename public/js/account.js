@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // --- BƯỚC 1: GỌI API PYTHON CỦA BẠN ---
                 // Server Python sẽ dùng Service Key để soi Database thật
-                const res = await fetch('http://127.0.0.1:5000/api/user/check_email', {
+                const res = await fetch('/api/user/check_email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email })
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // 1. GỌI API PYTHON ĐỂ KIỂM TRA
-                const checkRes = await fetch('http://127.0.0.1:5000/api/user/check_email', {
+                const checkRes = await fetch('/api/user/check_email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email })
