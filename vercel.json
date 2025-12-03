@@ -15,6 +15,10 @@
       "dest": "/api/index.py"
     },
     {
+      "src": "/map/route",
+      "dest": "/api/index.py"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/index.py"
     },
