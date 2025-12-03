@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Giỏ hàng - SHOPPY</title>
+  <link rel="stylesheet" href="css/cart.css">
+
+<body>
+
+  <header class="cart-page-header">
+    <div class="logo-container">
+      <a href="index.html"> <img src="images/logo/logo1.png" alt="SHOPPY Logo" class="header-logo">
+        <h1>SHOPPY</h1>
+      </a>
+    </div>
+    <span>Giỏ hàng</span>
+    <a href="index.html" class="back-link">❮ Trở lại mua sắm</a>
+  </header>
+
+  <main>
+    <div class="cart-header-row">
+      <div class="col-product">Sản Phẩm</div>
+      <div class="col-price">Đơn Giá</div>
+      <div class="col-qty">Số Lượng</div>
+      <div class="col-total">Số Tiền</div>
+      <div class="col-action">Thao Tác</div>
+    </div>
+
+    <div id="cart-page-list">
+      <div style="text-align: center; padding: 40px; color: #666;">Đang tải dữ liệu giỏ hàng...</div>
+    </div>
+  </main>
+
+  <div class="checkout-bar">
+    <div class="total-text" id="cart-page-total">
+      Tổng cộng (0 Sản phẩm): <span>0₫</span>
+    </div>
+    <button class="checkout-page-btn" id="cart-page-checkout">Mua ngay</button>
+  </div>
+
+  <script src="js/cart.js"></script>
+
+</html>

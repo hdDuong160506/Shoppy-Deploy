@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đang xử lý...</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-init.js"></script> <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
+        .success { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h3 id="status">🔄 Đang xác thực thông tin...</h3>
+    <p id="sub-status">Vui lòng không tắt trình duyệt.</p>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const subStatusEl = document.getElementById('sub-status');
+
+        // Lắng nghe sự kiện ngay khi Supabase xử lý hash trên URL
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log("Event:", event);
+
+            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                // TRƯỜNG HỢP 1: ĐĂNG KÝ THÀNH CÔNG (Xác thực email xong)
+                statusEl.textContent = "✅ Xác thực thành công!";
+                statusEl.className = "success";
+                subStatusEl.textContent = "Trang đăng ký cũ đã được cập nhật. Bạn có thể đóng tab này.";
+                
+                // Lưu tên người dùng vào localStorage để các tab khác cập nhật UI ngay
+                if (session && session.user) {
+                    const name = session.user.user_metadata.name || session.user.email.split('@')[0];
+                    localStorage.setItem('userName', name);
+                }
+
+                // Thử đóng tab này sau 2 giây (Chỉ hoạt động nếu script mở tab, nhưng cứ thử)
+                setTimeout(() => {
+                    window.close();
+                    // Nếu không đóng được thì chuyển về trang chủ
+                    window.location.href = 'index.html'; 
+                }, 1500);
+
+            } else if (event === 'PASSWORD_RECOVERY') {
+                // TRƯỜNG HỢP 2: QUÊN MẬT KHẨU
+                statusEl.textContent = "🔐 Đang chuyển đến trang đặt lại mật khẩu...";
+                // Chuyển hướng sang trang reset-password.html
+                window.location.href = 'reset-password.html';
+            }
+        });
+    </script>
+</body>
+</html>

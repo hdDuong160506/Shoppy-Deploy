@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chi tiết sản phẩm - SHOPPY</title>
+    <link rel="stylesheet" href="css/product-detail.css">
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="navbar-top">
+            <div class="nav-links-left">
+                <a href="#">Kênh Người Bán</a><span>|</span><a href="#">Kết nối</a>
+            </div>
+            <div class="nav-links-right" style="display: flex; align-items: center; gap: 12px;">
+                <a href="#">🔔 Thông báo</a><a href="#">❓ Hỗ Trợ</a>
+                <a href="#" class="auth-link" id="account-link" onclick="window.location.href='account.html'">Tài
+                    Khoản</a>
+                <div id="logout-link" title="Đăng Xuất" style="margin-left: 8px; cursor: pointer; display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px"
+                        fill="#FFFFFF">
+                        <path
+                            d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-240-56-56 94-94H440v-80h238l-94-94 56-56 200 200-200 200Z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-main">
+            <div class="nav-left">
+                <a href="index.html" class="brand-link">
+                    <img src="images/logo/logo1.png" alt="Logo" class="brand-logo">
+                    <div class="brand">SHOPPY</div>
+                </a>
+            </div>
+            <div class="nav-center-search">
+                <form id="search_form" onsubmit="event.preventDefault();">
+                    <div class="search-icon-left" title="Bộ lọc tìm kiếm" onclick="toggleFilterMenu()">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="#5f6368">
+                            <path
+                                d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z" />
+                        </svg>
+                    </div>
+                    <input type="text" name="search" id="search_input" placeholder="Tìm kiếm trên Shoppy..."
+                        autocomplete="off" />
+                    <div class="search-actions-right">
+                        <button type="button" onclick="startVoiceSearch()" class="icon-btn" title="Tìm bằng giọng nói">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#5f6368">
+                                <path
+                                    d="M480-400q-50 0-85-35t-35-85v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q0 50-35 85t-85 35Zm0-240Zm-40 520v-123q-104-14-172-93t-68-184h80q0 83 58.5 141.5T480-320q83 0 141.5-58.5T680-520h80q0 105-68 184t-172 93v123h-80Zm40-360q17 0 28.5-11.5T520-520v-240q0-17-11.5-28.5T480-800q-17 0-28.5 11.5T440-760v240q0 17 11.5 28.5T480-480Z" />
+                            </svg>
+                        </button>
+                        <button type="submit" class="icon-btn search-submit" title="Tìm kiếm">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#1867f8">
+                                <path
+                                    d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="nav-right">
+                <button class="cart-btn-icon" id="open-cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px"
+                        fill="white">
+                        <path
+                            d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z" />
+                    </svg>
+                    <span class="cart-count-bubble" id="cart-count" style="display: none;">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <nav class="breadcrumb">
+        <a href="index.html">Trang chủ</a> /
+        <span id="breadcrumb-summary-link"></span> /
+        <span>Chi tiết cửa hàng</span>
+    </nav>
+
+    <main>
+        <div class="product-container">
+            <div class="product-image"><img id="product-image-main" src="" alt="Ảnh sản phẩm"></div>
+            <div class="product-info">
+                <h2 id="product-name">Đang tải...</h2>
+                <div id="product-subtitle" style="margin-bottom: 15px; color: #555;"></div>
+                <div class="price" id="product-price">0</div>
+                <h3 class="section-title">Mô tả sản phẩm</h3>
+                <p class="product-description" id="product-description">Đang tải mô tả...</p>
+
+                <div class="actions-container">
+                    <div class="quantity-selector">
+                        <span>Số Lượng</span>
+                        <button class="qty-btn" id="qty-minus">-</button>
+                        <input type="text" class="qty-input" id="qty-input" value="1" readonly>
+                        <button class="qty-btn" id="qty-plus">+</button>
+                    </div>
+                    <div class="buttons">
+                        <button class="btn-add-cart" id="add-to-cart-btn">Thêm vào giỏ hàng</button>
+                        <button class="btn-map" id="map-btn">Chỉ đường</button>
+                        <button class="btn-buy-now" id="buy-now-btn">Mua ngay</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reviews-section">
+            <div class="review-header">
+                <h3 style="margin: 0;">Đánh giá sản phẩm</h3>
+                <div id="review-stats" style="display: flex; align-items: center; gap: 8px; font-size: 16px;">
+                    <span style="color:#999; font-style: italic;">(Đang tải...)</span>
+                </div>
+            </div>
+
+            <div id="reviews-list" class="review-list">
+                <p style="color:#777; font-style: italic;">Chưa có đánh giá nào.</p>
+            </div>
+
+            <div id="review-form-container" class="review-form" style="display: none;">
+                <h4 style="margin-bottom: 15px;">Viết đánh giá của bạn</h4>
+                <div class="star-rating-input">
+                    <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="5 sao">★</label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 sao">★</label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 sao">★</label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 sao">★</label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 sao">★</label>
+                </div>
+                <div class="form-group">
+                    <textarea id="review-comment" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
+                </div>
+                <button class="btn-submit-review" id="btn-submit-review">Gửi đánh giá</button>
+            </div>
+            <div id="login-prompt" style="margin-top: 20px; color: #666; display:none; text-align: center;">
+                Vui lòng <a href="account.html" style="color:#00aaff; font-weight: bold;">đăng nhập</a> để viết đánh giá.
+            </div>
+        </div>
+    </main>
+
+    <div id="cart-popup">
+        <h3 style="margin-top:0;">🛒 Giỏ hàng của bạn</h3>
+        <div class="cart-list" id="cart-list">
+            <div style="color:#888">Giỏ hàng trống</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <div>Tổng:</div>
+            <div style="font-weight:700" id="cart-total">0₫</div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="cart-btn" id="checkout">Xem Giỏ hàng</button>
+            <button class="small-btn" id="close-cart" style="margin-left:auto;">Đóng</button>
+        </div>
+    </div>>
+
+    <div id="voice_popup" style="display:none;">
+        <div class="voice-popup-content">
+            <h5>🎙️ Đang nghe...</h5>
+            <p>Hãy nói từ khóa tìm kiếm của bạn</p>
+            <p id="transcript_display" style="min-height: 25px; color: #1867f8; font-weight: bold; margin: 15px 0;"></p>
+            <div class="listening-dot">•</div>
+            <button type="button" onclick="cancelVoiceSearch()"
+                style="padding:10px 20px; background:#666; color:white; border:none; border-radius:8px; cursor:pointer; margin-top:10px;">Hủy</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <h2 style="color:#00aaff; font-size:28px;">SHOPPY</h2>
+                    <p style="color:#ccc;">Web bán hàng hàng đầu Việt Nam.</p>
+                </div>
+                <h3>Đối tác thanh toán</h3>
+                <div class="partners"><img src="images/payment/visa.png" alt="Visa"><img
+                        src="images/payment/mastercard.png" alt="Mastercard"><img src="images/payment/momo.png"
+                        alt="MoMo"></div>
+            </div>
+            <div class="footer-section">
+                <h3>Về Shoppy</h3>
+                <ul>
+                    <li><a href="#">Giới thiệu</a></li>
+                    <li><a href="#">Liên hệ</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">@ 2025 Shoppy — Khoa CNTT, HCMUS</div>
+    </footer>
+
+    <script src="js/supabase-init.js"></script>
+    <script src="js/product-detail.js"></script>
+</body>
+
+</html>

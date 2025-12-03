@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Shoppy Map</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/css/map.css" />
+
+</head>
+
+<body>
+
+  <div class="control-panel" id="panel">
+    <div class="toggle-btn" id="toggle-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </div>
+
+    <div class="brand" onclick="window.history.back()" style="cursor: pointer;" title="Quay lại trang trước">
+      Shoppy Map
+    </div>
+    <div class="input-group">
+      <label class="label">Bắt đầu</label>
+      <select id="start-select">
+        <option value="default">🏫 Trường ĐH Khoa học Tự nhiên - ĐHQG TP.HCM</option>
+        <option value="gps">📍 Đang lấy vị trí...</option>
+      </select>
+      <input type="hidden" id="start-coords" value="106.68258,10.76279">
+    </div>
+    <div class="input-group">
+      <label class="label">Đích đến</label>
+      <input id="end-display" type="text" placeholder="Chọn trên bản đồ..." readonly />
+      <input type="hidden" id="end-coords">
+    </div>
+    <div class="input-group">
+      <label class="label">Phương tiện</label>
+      <select id="profile-select">
+        <option value="driving-car">🚗 Ô tô</option>
+        <option value="cycling-regular">🛵 Xe máy</option>
+        <option value="foot-walking">🚶 Đi bộ</option>
+      </select>
+    </div>
+
+    <div class="realtime-row">
+      <input type="checkbox" id="realtime-toggle" />
+      <label for="realtime-toggle">Chỉ đường thời gian thực</label>
+    </div>
+
+    <button class="btn-draw" id="btn-draw">Chỉ đường</button>
+    <div class="status-bar" id="status-text">Sẵn sàng</div>
+    <div class="route-result" id="route-result"></div>
+  </div>
+
+  <div class="gps-control" id="btn-locate" title="Vị trí của tôi">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
+    </svg>
+  </div>
+
+  <div class="layer-control">
+    <div class="layer-btn-main" id="btn-layer-toggle" title="Đổi lớp bản đồ" style="cursor: pointer;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+        <polyline points="2 17 12 22 22 17"></polyline>
+        <polyline points="2 12 12 17 22 12"></polyline>
+      </svg>
+    </div>
+
+    <div class="layer-options" id="layer-menu">
+      <div class="layer-opt active" onclick="switchLayer('street', this)">Đường Phố</div>
+      <div class="layer-opt" onclick="switchLayer('satellite', this)">Vệ tinh</div>
+      <div class="layer-opt" onclick="switchLayer('terrain', this)">Địa hình</div>
+    </div>
+  </div>
+
+  <div class="legend" id="legend">
+    <div style="font-weight:700;margin-bottom:6px;">Chú thích</div>
+  </div>
+
+  <div id="map"></div>
+  <div id="loading">
+    <div class="spin"></div><span>Đang xử lý...</span>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script src="/js/map.js"></script>
+</body>
+
+</html>

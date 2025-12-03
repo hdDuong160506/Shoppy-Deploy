@@ -1,0 +1,436 @@
+/* --- Cấu hình biến CSS --- */
+:root {
+  --primary: #3b82f6;
+  --text-main: #1e293b;
+  --text-light: #64748b;
+  --bg-panel: rgba(255, 255, 255, 0.95);
+  --radius: 12px;
+  --marker-size: 28px;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* --- Bảng điều khiển (Control Panel) --- */
+.control-panel {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  width: 300px;
+  background: var(--bg-panel);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.control-panel.collapsed {
+  transform: translateX(calc(-100% - 10px));
+}
+
+/* Nút đóng/mở panel */
+.toggle-btn {
+  position: absolute;
+  right: -28px;
+  top: 20px;
+  width: 28px;
+  height: 72px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+  color: var(--text-light);
+}
+
+.toggle-btn:hover {
+  color: var(--primary);
+}
+
+/* Thành phần form */
+.brand {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-group {
+  margin-bottom: 12px;
+}
+
+.label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+select,
+input[type="text"] {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+select:focus,
+input:focus {
+  border-color: var(--primary);
+}
+
+input[readonly] {
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: default;
+}
+
+/* Nút bấm trong Panel */
+.btn-draw,
+.btn-route,
+.btn-select {
+  width: 100%;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-draw {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px;
+  margin-top: 8px;
+  gap: 6px;
+}
+
+.btn-draw:hover {
+  background: #2563eb;
+}
+
+.btn-select {
+  padding: 6px;
+  background: white;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  font-size: 0.8rem;
+  margin-top: 6px;
+  border-radius: 4px;
+}
+
+.btn-select:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-route {
+  padding: 6px;
+  background: #2563eb;
+  border: none;
+  color: white;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  border-radius: 4px;
+}
+
+/* Trạng thái & Kết quả */
+.status-bar {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--text-light);
+  min-height: 18px;
+}
+
+.route-result {
+  background: #eff6ff;
+  color: #1e40af;
+  padding: 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 8px;
+  display: none;
+  border: 1px solid #bfdbfe;
+}
+
+.realtime-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.realtime-row label {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+
+/* ==========================================================================
+   STYLE CHO CÁC NÚT ĐIỀU KHIỂN MAP (LAYER, GPS)
+   ========================================================================== */
+
+/* 1. GIAO DIỆN CHUNG (Visuals Only) */
+/* Định nghĩa hình dáng nút: Trắng, bo góc, bóng đổ */
+.gps-control,
+.layer-btn-main {
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  /* Bóng giống Leaflet */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  /* Viền mờ */
+  background-clip: padding-box;
+  transition: background-color 0.2s;
+}
+
+.gps-control:hover,
+.layer-btn-main:hover {
+  background-color: #f4f4f4;
+  color: #000;
+}
+
+.gps-control svg,
+.layer-btn-main svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+/* 2. ĐỊNH VỊ */
+
+/* Nút GPS: Định vị tuyệt đối so với màn hình */
+.gps-control {
+  position: absolute;
+  right: 10px;
+  /* Thẳng hàng với Zoom */
+  bottom: 145px;
+  /* Vị trí trên cùng trong nhóm nút dưới */
+  z-index: 1000;
+}
+
+/* Container Layer: Định vị tuyệt đối so với màn hình */
+/* Nút Layer nằm giữa GPS và Zoom */
+.layer-control {
+  position: absolute;
+  right: 10px;
+  bottom: 80px;
+  z-index: 1000;
+}
+
+/* Nút bấm Layer: Nằm trong container, không cần position absolute nữa */
+.layer-btn-main {
+  position: relative;
+  bottom: 30px
+}
+
+
+/* 3. MENU LAYER (Popup) */
+.layer-options {
+  position: absolute;
+  bottom: 0;
+  right: 35px;
+  /* Hiện sang bên trái của nút bấm */
+  background: white;
+  padding: 5px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  display: none;
+  /* Ẩn mặc định */
+  flex-direction: column;
+  gap: 5px;
+  width: 100px;
+}
+
+.layer-options.show {
+  display: flex;
+  /* Hiện menu lên */
+  animation: fadeIn 0.2s ease-in-out;
+  /* Hiệu ứng hiện dần */
+}
+
+
+.layer-opt {
+  font-size: .75rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--text-light);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.layer-opt:hover {
+  background: #f1f5f9;
+  color: var(--primary);
+}
+
+.layer-opt.active {
+  background: #eff6ff;
+  color: var(--primary);
+  border-color: #bfdbfe;
+}
+
+
+/* --- Marker Styles --- */
+.marker-pin {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.18s ease;
+  border: 2px solid white;
+  width: var(--marker-size);
+  height: var(--marker-size);
+  font-size: 14px;
+  color: white;
+}
+
+/* Marker khi zoom gần/xa */
+.map-zoomed-in .marker-pin {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+}
+
+.map-zoomed-out .marker-pin {
+  width: 9px !important;
+  height: 9px !important;
+  font-size: 0;
+  margin-left: 9px;
+  margin-top: 9px;
+  border-width: 1px;
+  opacity: 0.85;
+}
+
+/* Popup */
+.popup-content {
+  text-align: center;
+  width: 240px;
+}
+
+.popup-content h3 {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.popup-content p {
+  margin: 0 0 10px 0;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.tag-badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: white;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* --- Loading Spinner --- */
+#loading {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 15px 25px;
+  border-radius: 50px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+  font-weight: 600;
+  color: var(--primary);
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(4px);
+  border: 1px solid #e2e8f0;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Chú thích (Legend) --- */
+.legend {
+  position: absolute;
+  right: 10px;
+  top: 20px;
+  z-index: 950;
+  background: rgba(255, 255, 255, 1.0);
+  padding: 5px 10px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  font-size: 10px;
+  color: var(--text-main);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}

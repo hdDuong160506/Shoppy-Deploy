@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thanh Toán - SHOPPY</title>
+    <style>
+        body {
+            font-family: Inter, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Cột trái: Thông tin */
+        .left-col {
+            flex: 1.5;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        /* Cột phải: Đơn hàng */
+        .right-col {
+            flex: 1;
+            height: fit-content;
+        }
+
+        /* THAY ĐỔI TẠI ĐÂY: Thêm margin-bottom cho order-item */
+        .order-item {
+            display: flex;
+            flex-direction: column;
+            /* Đảm bảo tên sản phẩm và tên cửa hàng nằm trên 2 dòng */
+            /* margin-bottom: 10px là giá trị cũ, tăng lên 15px và thêm border-bottom để phân biệt rõ hơn */
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 18px;
+            color: #005FFF;
+            margin-top: 20px;
+            border-top: 1px dashed #ddd;
+            padding-top: 15px;
+        }
+
+        .btn-order {
+            width: 100%;
+            padding: 15px;
+            background: #005FFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-order:hover {
+            background: #004ecc;
+        }
+
+        .btn-order:disabled {
+            background: #ccc;
+        }
+
+        .payment-method {
+            margin-top: 15px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .radio-item:hover {
+            background: #f9f9f9;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="section left-col">
+            <h2>🚚 Thông tin giao hàng</h2>
+            <form id="checkout-form">
+                <div class="form-group">
+                    <label>Họ và tên người nhận</label>
+                    <input type="text" id="cus_name" required placeholder="Ví dụ: Lê Tấn Tài">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="tel" id="cus_phone" required placeholder="Ví dụ: 0901234567">
+                </div>
+                <div class="form-group">
+                    <label>Địa chỉ nhận hàng</label>
+                    <input type="text" id="cus_address" required placeholder="Số nhà, đường, phường/xã...">
+                </div>
+
+                <h2 style="margin-top: 30px;">💳 Phương thức thanh toán</h2>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="payment" value="COD" checked>
+                        <span>Thanh toán khi nhận hàng (COD)</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="payment" value="BANK">
+                        <span>Chuyển khoản ngân hàng (QR Code)</span>
+                    </label>
+                </div>
+            </form>
+        </div>
+
+        <div class="section right-col">
+            <h2>📦 Đơn hàng của bạn</h2>
+            <div id="checkout-items">
+                <p>Đang tải sản phẩm...</p>
+            </div>
+            <div class="total-row">
+                <span>Tổng thanh toán:</span>
+                <span id="final-total">0₫</span>
+            </div>
+            <button type="button" class="btn-order" id="btn-place-order">ĐẶT HÀNG NGAY</button>
+            <a href="cart.html"
+                style="display:block; text-align:center; margin-top:15px; color:#666; text-decoration:none;">Quay lại
+                giỏ hàng</a>
+        </div>
+    </div>
+
+    <script src="js/supabase-init.js"></script>
+    <script src="js/checkout.js"></script>
+</body>
+
+</html>

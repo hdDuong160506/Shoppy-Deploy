@@ -1,0 +1,177 @@
+/* --- CSS dành riêng cho trang Summary (Đặt tại /static/css/product-summary.css) --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+body {
+    font-family: Inter, system-ui, "Segoe UI", Roboto, Arial;
+    line-height: 1.4;
+    color: #333;
+    background: #f0f2f5;
+    /* Animation: Được định nghĩa trong style.css gốc */
+    /* animation: pageFadeIn 0.5s ease-in-out; */
+}
+
+/* @keyframes pageFadeIn: đã có trong style.css */
+
+.breadcrumb {
+    padding: 15px 60px;
+    font-size: 14px;
+    background: #e9ecef;
+    /* Cần điều chỉnh margin-top để tránh navbar fixed */
+    margin-top: 130px;
+}
+
+.breadcrumb a {
+    color: #00aaff;
+    text-decoration: none;
+}
+
+main {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    min-height: 50vh; /* Đảm bảo nội dung không quá ngắn */
+}
+
+.product-summary-col {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.product-detail-summary {
+    flex: 1;
+    min-width: 350px;
+}
+
+.store-list-recommend {
+    flex: 1.5;
+    min-width: 500px;
+}
+
+.product-detail-summary h2 {
+    font-size: 30px;
+    color: #00aaff;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.product-image-main {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.product-tag {
+    background: #eef3ff;
+    color: #00aaff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.store-list-recommend h3 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.store-item-card {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none; /* Bỏ gạch chân cho thẻ <a> */
+    color: inherit;
+}
+
+.store-item-card:hover {
+    border-color: #00aaff;
+    box-shadow: 0 2px 8px rgba(0, 170, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.store-item-card img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.store-info {
+    flex-grow: 1;
+}
+
+.store-name {
+    font-weight: 600;
+    font-size: 18px;
+    color: #0b38cc;
+}
+
+.store-price {
+    font-size: 15px;
+    color: #ff4444;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+.store-review {
+    font-size: 13px;
+    color: #888;
+    margin-top: 5px;
+}
+
+.store-actions button {
+    background: #0b38cc;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.store-actions button:hover {
+    background: #5a6fcf;
+}
+
+.no-stores {
+    padding: 40px;
+    text-align: center;
+    color: #888;
+    font-size: 16px;
+}
+
+/* Ẩn/Hiện Cart Popup cho mobile */
+@media (max-width: 768px) {
+    .breadcrumb {
+        padding: 15px 20px;
+        margin-top: 180px; /* Adjust for taller mobile header */
+    }
+    main {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .product-detail-summary, .store-list-recommend {
+        min-width: 100%;
+    }
+}

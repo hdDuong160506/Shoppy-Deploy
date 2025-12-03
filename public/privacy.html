@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chính Sách Bảo Mật | SHOPPY VIỆT NAM</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .policy-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            line-height: 1.6;
+        }
+        .policy-container h1 {
+            color: #1e3a8a;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .policy-container h2 {
+            color: #e74c3c;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+        .policy-container h3 {
+            color: #1867f8;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .policy-container p, .policy-container ul {
+            font-size: 15px;
+            color: #333;
+        }
+        .policy-container ul {
+            padding-left: 20px;
+        }
+        .last-updated {
+            text-align: right;
+            font-style: italic;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-top">
+            <div class="nav-links-left">
+                <a href="seller.html">Kênh Người Bán</a>
+                <span>|</span>
+                <a href="#">Trở thành Người bán Shoppy</a>
+            </div>
+            <div class="nav-links-right" style="display: flex; align-items: center; gap: 12px;">
+                <a href="support.html">❓ Hỗ Trợ</a>
+                <a href="account.html" class="auth-link" id="account-link">Tài Khoản</a>
+                <div id="logout-link" title="Đăng Xuất" style="margin-left: 8px; cursor: pointer; display: none;"
+                    onclick="handleLogout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#FFFFFF">
+                        <path
+                            d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-240-56-56 94-94H440v-80h238l-94-94 56-56 200 200-200 200Z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-main">
+            <div class="nav-left">
+                <a href="index.html" class="brand-link">
+                    <img src="images/logo/logo1.png" alt="Logo" class="brand-logo">
+                    <div class="brand">SHOPPY</div>
+                </a>
+            </div>
+            <div class="nav-center-search">
+                <h2 style="color: white; font-size: 24px;">Chính sách bảo mật</h2>
+            </div>
+            <div class="nav-right">
+                <button class="cart-btn-icon" id="open-cart" onclick="window.location.href='cart.html'">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px" fill="white">
+                        <path
+                            d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z" />
+                    </svg>
+                    <span class="cart-count-bubble" id="cart-count" style="display: none;">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section style="min-height: 70vh;">
+            <div class="policy-container">
+                <h1>Chính Sách Bảo Mật Thông Tin Cá Nhân</h1>
+                <p class="last-updated">Cập nhật lần cuối: 01/12/2025</p>
+
+                <p>SHOPPY cam kết bảo vệ quyền riêng tư của người dùng. Chính sách này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn khi bạn sử dụng dịch vụ của chúng tôi.</p>
+
+                <h2>1. Loại thông tin chúng tôi thu thập</h2>
+                <h3>Thông tin bạn cung cấp trực tiếp:</h3>
+                <ul>
+                    <li>Thông tin tài khoản: Tên, email, mật khẩu (đã mã hóa).</li>
+                    <li>Thông tin giao dịch: Địa chỉ giao hàng, số điện thoại.</li>
+                    <li>Thông tin thanh toán: Không lưu trữ thông tin thẻ ngân hàng (được xử lý qua cổng thanh toán thứ ba).</li>
+                </ul>
+
+                <h3>Thông tin tự động thu thập:</h3>
+                <ul>
+                    <li>**Dữ liệu vị trí:** Tọa độ GPS (latitude/longitude) khi bạn cho phép, dùng để hiển thị các cửa hàng gần nhất và tối ưu hóa việc giao hàng.</li>
+                    <li>Dữ liệu kỹ thuật: Địa chỉ IP, loại trình duyệt, hệ điều hành, thời gian truy cập.</li>
+                </ul>
+
+                <h2>2. Mục đích sử dụng thông tin</h2>
+                <p>Chúng tôi sử dụng thông tin của bạn cho các mục đích sau:</p>
+                <ul>
+                    <li>Xử lý và hoàn thành đơn hàng.</li>
+                    <li>Hiển thị sản phẩm và cửa hàng phù hợp với vị trí của bạn (sử dụng tọa độ vị trí).</li>
+                    <li>Cải thiện dịch vụ và phát triển các tính năng mới (ví dụ: tối ưu hóa kết quả tìm kiếm).</li>
+                    <li>Gửi các thông báo quan trọng liên quan đến tài khoản hoặc giao dịch của bạn.</li>
+                    <li>Ngăn chặn các hành vi gian lận hoặc vi phạm pháp luật.</li>
+                </ul>
+
+                <h2>3. Chia sẻ thông tin cá nhân</h2>
+                <p>Chúng tôi cam kết không bán hoặc cho thuê thông tin cá nhân của bạn cho bên thứ ba. Chúng tôi chỉ chia sẻ thông tin trong các trường hợp sau:</p>
+                <ul>
+                    <li>**Với Người bán/Đối tác giao hàng:** Để hoàn thành đơn hàng (tên, địa chỉ, số điện thoại).</li>
+                    <li>**Theo yêu cầu pháp luật:** Khi có lệnh của tòa án hoặc cơ quan nhà nước có thẩm quyền.</li>
+                </ul>
+
+                <h2>4. Quyền của bạn</h2>
+                <ul>
+                    <li>Truy cập, chỉnh sửa hoặc xóa thông tin cá nhân của bạn bất kỳ lúc nào qua trang hồ sơ cá nhân.</li>
+                    <li>Yêu cầu chúng tôi giới hạn việc xử lý dữ liệu của bạn.</li>
+                </ul>
+
+                <h2>5. Liên hệ</h2>
+                <p>Nếu có bất kỳ câu hỏi nào về Chính sách bảo mật này, vui lòng liên hệ với chúng tôi qua email: support@shoppy.vn.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <h2 style="color:#00aaff; font-size:28px;">SHOPPY</h2>
+                    <p style="color:#ccc;">Web bán hàng hàng đầu Việt Nam.</p>
+                </div>
+                <h3>Đối tác thanh toán</h3>
+                <div class="partners">
+                    <img src="images/payment/visa.png" alt="Visa">
+                    <img src="images/payment/mastercard.png" alt="Mastercard">
+                    <img src="images/payment/momo.png" alt="MoMo">
+                    <img src="images/payment/vnpay.jpg" alt="VNPay">
+                    <img src="images/payment/vietqr.png" alt="VietQR">
+                    <img src="images/payment/mbbank.png" alt="MB Bank">
+                    <img src="images/payment/viettinbank.png" alt="Viettinbank">
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Về Shoppy</h3>
+                <ul>
+                    <li><a href="about.html">Giới thiệu</a></li>
+                    <li><a href="contact.html">Liên hệ</a></li>
+                    <li><a href="#">Tuyển dụng</a></li>
+                    <li><a href="support.html">Trợ giúp</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Sản phẩm</h3>
+                <ul>
+                    <li><a href="#">Đồ dùng học tập</a></li>
+                    <li><a href="#">Đồ điện tử</a></li>
+                    <li><a href="#">Thời trang</a></li>
+                    <li><a href="#">Đồ gia dụng</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Chính sách</h3>
+                <ul>
+                    <li><a href="privacy.html" style="font-weight: bold;">Chính sách bảo mật</a></li>
+                    <li><a href="terms.html">Điều khoản sử dụng</a></li>
+                    <li><a href="#">Đổi trả & Hoàn tiền</a></li>
+                </ul>
+                <h3 style="margin-top:20px;">Theo dõi chúng tôi</h3>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com" target="_blank">
+                        <img src="/images/icons/fb.jpg" alt="Facebook">
+                    </a>
+                    <a href="https://www.instagram.com" target="_blank">
+                        <img src="/images/icons/ins.jpg" alt="Instagram">
+                    </a>
+                    <a href="https://www.tiktok.com" target="_blank">
+                        <img src="/images/icons/tiktok.jpg" alt="TikTok">
+                    </a>
+                    <a href="https://www.youtube.com" target="_blank">
+                        <img src="/images/icons/youtube.png" alt="YouTube">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            @ 2025 Shoppy — Khoa CNTT, HCMUS
+        </div>
+    </footer>
+    <script src="js/supabase-init.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof updateAccountLink === 'function') {
+                updateAccountLink();
+            }
+        });
+    </script>
+</body>
+</html>
