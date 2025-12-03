@@ -228,21 +228,6 @@ body.page-fade-out {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Icon Filter bên trái */
-.search-icon-left {
-  cursor: pointer;
-  padding: 8px;
-  margin-right: 5px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  transition: background 0.2s;
-}
-
-.search-icon-left:hover {
-  background: #f1f3f4;
-}
-
 /* Ô Input */
 #search_input {
   flex: 1;
@@ -277,61 +262,12 @@ body.page-fade-out {
   background: #f1f3f4;
 }
 
-/* Menu Bộ lọc (Dropdown) */
-.filter-dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 55px;
-  left: 0;
-  width: 300px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  padding: 15px;
-  z-index: 2001;
-  border: 1px solid #eee;
-}
-
-.filter-dropdown-menu.active {
-  display: block;
-  animation: slideDown 0.2s ease-out;
-}
-
-.filter-group {
-  margin-bottom: 12px;
-}
-
-.filter-group:last-child {
-  margin-bottom: 0;
-}
-
-.filter-group label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 5px;
-}
-
-.custom-select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  outline: none;
-}
-
-.custom-select:focus {
-  border-color: #1867f8;
-}
-
 /* --- Breadcrumb & Main Layout (TỪ HTML) --- */
 .breadcrumb {
   padding: 15px 60px;
   font-size: 14px;
   background: #e9ecef;
-  margin-top: 130px;
+  margin-top: 90px;
 }
 
 .breadcrumb a {
@@ -459,13 +395,13 @@ main {
 }
 
 .btn-map {
-  background: #f0f0f0;
-  color: #333;
+  background: #00aaff;
+  color: white;
   border: 1px solid #ddd;
 }
 
 .btn-map:hover {
-  background: #00aaff;
+  background: #53c6ff;
   color: white;
   transform: scale(1.05);
   /* Sử dụng transform thay vì scale: 1.05 */
@@ -477,10 +413,26 @@ main {
   border: 1px solid #00aaff;
 }
 
+.btn-add-cart:hover {
+  background: #eef3ff;
+  ;
+  color: #00aaff;
+  transform: scale(1.05);
+  /* Sử dụng transform thay vì scale: 1.05 */
+}
+
 .btn-buy-now {
   background: #00aaff;
   color: white;
 }
+
+.btn-buy-now:hover {
+  background: #53c6ff;
+  color: white;
+  transform: scale(1.05);
+  /* Sử dụng transform thay vì scale: 1.05 */
+}
+
 
 /* --- Review Section (TỪ HTML) --- */
 .reviews-section {
@@ -621,6 +573,7 @@ main {
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
   padding: 16px;
   z-index: 2100;
+  animation: fadeIn 0.3s ease;
 }
 
 .cart-list {
@@ -718,7 +671,7 @@ main {
   line-height: 40px;
 }
 
-/* --- Footer (TỪ HTML) --- */
+/* --- Footer (TỪ index.html) --- */
 footer {
   margin-top: 40px;
   text-align: center;
@@ -774,6 +727,7 @@ footer {
   padding: 2px;
 }
 
+/* Thêm social icons từ index.html */
 .social-icons img {
   height: 28px;
   margin: 6px 8px 0 0;
@@ -782,6 +736,7 @@ footer {
   padding: 4px;
 }
 
+
 .footer-bottom {
   background: #0b1318;
   text-align: center;
@@ -789,6 +744,392 @@ footer {
   padding: 15px;
   font-size: 13px;
 }
+
+/* --- START: CSS TÌM KIẾM BẰNG HÌNH ẢNH (TỪ style.css) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.image-search-modal {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 540px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #6b7280;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+  line-height: 1;
+  padding: 0;
+}
+
+.close-btn:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+/* Tabs */
+.image-tabs {
+  display: flex;
+  padding: 0 24px;
+  gap: 8px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tab-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.tab-button:hover {
+  color: #1867f8;
+  background: rgba(24, 103, 248, 0.05);
+}
+
+.tab-button.active {
+  color: #1867f8;
+  border-bottom-color: #1867f8;
+  background: white;
+}
+
+.tab-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.tab-contents {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.tab-panel {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+/* Upload Zone */
+.upload-zone {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  background: #f9fafb;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.upload-zone:hover {
+  border-color: #1867f8;
+  background: #eff6ff;
+}
+
+.upload-zone.dragover {
+  border-color: #1867f8;
+  background: #dbeafe;
+  transform: scale(1.02);
+}
+
+.upload-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.upload-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.upload-subtext {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+.browse-btn {
+  background: #1867f8;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.browse-btn:hover {
+  background: #1459d7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 103, 248, 0.3);
+}
+
+/* Paste Zone */
+.paste-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#imagePasteInput {
+  width: 100%;
+  min-height: 140px;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  color: #374151;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+#imagePasteInput:focus {
+  outline: none;
+  border-color: #1867f8;
+  box-shadow: 0 0 0 3px rgba(24, 103, 248, 0.1);
+}
+
+#imagePasteInput::placeholder {
+  color: #9ca3af;
+}
+
+/* Preview Container */
+.preview-container {
+  margin-top: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  background: #f9fafb;
+  text-align: center;
+  position: relative;
+}
+
+.preview-container img {
+  max-width: 100%;
+  max-height: 280px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 auto;
+}
+
+.remove-image-btn {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.remove-image-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.remove-image-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Error Message */
+.error-message {
+  display: none;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-top: 16px;
+  animation: shake 0.3s ease;
+}
+
+.error-message.show {
+  display: block;
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Footer trong modal */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #1867f8;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1459d7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 103, 248, 0.3);
+}
+
+.btn-primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* Loading State */
+.btn-primary.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.btn-primary.loading::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 2px solid white;
+  border-top-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.6s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- END: CSS TÌM KIẾM BẰNG HÌNH ẢNH (TỪ style.css) --- */
+
 
 /* --- 9. RESPONSIVE (MOBILE) --- */
 @media (max-width: 768px) {
@@ -826,6 +1167,10 @@ footer {
     margin-top: 180px;
   }
 
+  .breadcrumb {
+    padding: 15px;
+  }
+
   #cart-popup {
     top: 185px;
     right: 15px;
@@ -841,16 +1186,139 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  .store-header {
-    flex-direction: column;
-  }
-
-  .store-image {
-    width: 100%;
-    height: 120px;
-  }
-
   .product-image img {
     max-width: 100%;
+  }
+
+  /* Responsive Image Search Modal */
+  .image-search-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modal-header,
+  .tab-contents,
+  .modal-footer {
+    padding: 16px;
+  }
+
+  .image-tabs {
+    padding: 0 16px;
+  }
+
+  .tab-button {
+    font-size: 13px;
+    padding: 12px 12px;
+  }
+
+  .upload-zone {
+    padding: 32px 16px;
+  }
+
+  .upload-icon {
+    font-size: 40px;
+  }
+
+  .preview-container img {
+    max-height: 200px;
+  }
+}
+
+/* Đảm bảo animation spin được định nghĩa */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- 10. FULL-PAGE SPINNER --- */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  /* Màu nền nhẹ */
+  border-top: 5px solid #1867f8;
+  /* Màu xanh nổi bật */
+  border-radius: 50%;
+  /* Dòng này gọi @keyframes spin */
+  animation: spin 0.8s linear infinite;
+}
+
+/* product-detail.css (Điều chỉnh phần NOTIFICATION TOAST) */
+
+/* --- 11. NOTIFICATION TOAST/SNACKBAR --- */
+.notification-toast {
+  visibility: hidden;
+  /* Mặc định ẩn */
+  min-width: 250px;
+  /* Căn giữa theo chiều ngang */
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* Vị trí mới: 20% từ trên xuống */
+  top: 20%;
+
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 16px;
+  position: fixed;
+  z-index: 10001;
+  /* Cao hơn loading overlay */
+  font-size: 17px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  /* Loại bỏ transition cũ, dùng animation */
+  /* transition: opacity 0.5s, transform 0.5s; */
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.toast-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Các class để kích hoạt animation */
+.notification-toast.show {
+  visibility: visible;
+  opacity: 1;
+  /* Animation fade-in */
+  animation: fadein-center 0.5s, fadeout-center 0.5s 2.5s;
+  /* Hiện 0.5s, ẩn 0.5s sau 2.5s (tổng cộng 3s) */
+}
+
+/* @keyframes MỚI: Fade in từ trên xuống (vị trí ban đầu cao hơn 20%) */
+@keyframes fadein-center {
+  from {
+    top: 15%;
+    /* Bắt đầu từ 15% (cao hơn) */
+    opacity: 0;
+  }
+
+  to {
+    top: 20%;
+    /* Kết thúc ở vị trí 20% */
+    opacity: 1;
+  }
+}
+
+/* @keyframes MỚI: Fade out (biến mất về vị trí ban đầu) */
+@keyframes fadeout-center {
+  from {
+    top: 20%;
+    opacity: 1;
+  }
+
+  to {
+    top: 15%;
+    /* Biến mất trở lại vị trí 15% */
+    opacity: 0;
   }
 }

@@ -1054,3 +1054,14 @@ main section > div:nth-of-type(2) h2 {
     color: #888;
     font-size: 14px;
 }
+
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3; /* Màu nền nhẹ */
+    border-top: 5px solid #1867f8; /* Màu xanh nổi bật */
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite; /* Sử dụng animation spin đã định nghĩa */
+}
+/* 

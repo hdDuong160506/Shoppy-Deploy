@@ -14,7 +14,7 @@ if (typeof supabase === 'undefined') {
     const _client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // 4. GHI ĐÈ biến toàn cục 'supabase' bằng client vừa tạo
-    // Điều này giúp script1.js và script.js có thể gọi: supabase.auth.signUp(...)
+    // Điều này giúp script1.js và index.js có thể gọi: supabase.auth.signUp(...)
     window.supabase = _client;
 
     console.log("✅ Supabase Init: Đã khởi tạo và ghi đè biến toàn cục thành công!");

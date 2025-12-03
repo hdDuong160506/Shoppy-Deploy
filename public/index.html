@@ -5,8 +5,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SHOPPY VIỆT NAM</title>
-
+  <title>Shoppy</title>
+  <link rel="icon" type="image/png" href="images/logo/logo1.png">
   <script src="js/gps-fast.js" async></script>
 
   <link rel="stylesheet" href="css/style.css">
@@ -142,7 +142,6 @@
             <h2 id="search-results-title" style="text-align:center; margin-bottom:30px; color:#333; display:none;"></h2>
             <div class="products" id="suggested-products-list"
               style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:20px; max-width:1200px; margin:0 auto;">
-              <p style="text-align:center; color:#888; grid-column:1/-1;">Đang tải sản phẩm gợi ý...</p>
             </div>
           </section>
 
@@ -356,7 +355,14 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-init.js"></script>
-  <script src="js/script.js"></script>
+  <script src="js/index.js"></script>
+  <div id="full-page-loading" style="
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(255, 255, 255, 0.85); display: none; 
+            justify-content: center; align-items: center; z-index: 10000;
+        ">
+    <div class="spinner"></div>
+  </div>
 </body>
 
 </html>

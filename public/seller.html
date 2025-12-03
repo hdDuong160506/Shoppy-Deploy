@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Kênh Người Bán | SHOPPY VIỆT NAM</title>
+    <link rel="icon" type="image/png" href="images/logo/logo1.png">
     <link rel="stylesheet" href="css/style.css">
     <style>
         .seller-container {
@@ -15,6 +17,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
+
         .seller-feature {
             display: flex;
             gap: 20px;
@@ -23,24 +26,29 @@
             padding: 20px;
             border-bottom: 1px solid #eee;
         }
+
         .seller-feature:last-child {
             border-bottom: none;
         }
+
         .seller-feature img {
             width: 80px;
             height: 80px;
             object-fit: contain;
             flex-shrink: 0;
         }
+
         .feature-text h3 {
             color: #e74c3c;
             margin-top: 0;
             font-size: 20px;
         }
+
         .feature-text p {
             color: #555;
             font-size: 15px;
         }
+
         .btn-register-seller {
             background: #e74c3c;
             color: white;
@@ -52,11 +60,13 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
         .btn-register-seller:hover {
             background: #c0392b;
         }
     </style>
 </head>
+
 <body>
     <header class="navbar">
         <div class="navbar-top">
@@ -70,7 +80,8 @@
                 <a href="account.html" class="auth-link" id="account-link">Tài Khoản</a>
                 <div id="logout-link" title="Đăng Xuất" style="margin-left: 8px; cursor: pointer; display: none;"
                     onclick="handleLogout()">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="#FFFFFF">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px"
+                        fill="#FFFFFF">
                         <path
                             d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-240-56-56 94-94H440v-80h238l-94-94 56-56 200 200-200 200Z" />
                     </svg>
@@ -89,7 +100,8 @@
             </div>
             <div class="nav-right">
                 <button class="cart-btn-icon" id="open-cart" onclick="window.location.href='cart.html'">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px" fill="white">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px"
+                        fill="white">
                         <path
                             d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z" />
                     </svg>
@@ -102,26 +114,30 @@
     <main>
         <section style="min-height: 60vh;">
             <div class="seller-container">
-                <h1 style="text-align: center; color: #e74c3c; margin-bottom: 30px;">Kênh Người Bán Shoppy - Bán hàng dễ dàng</h1>
+                <h1 style="text-align: center; color: #e74c3c; margin-bottom: 30px;">Kênh Người Bán Shoppy - Bán hàng dễ
+                    dàng</h1>
 
-                <div style="text-align: center; margin-bottom: 40px; padding: 20px; background: #fff3f3; border-radius: 10px;">
+                <div
+                    style="text-align: center; margin-bottom: 40px; padding: 20px; background: #fff3f3; border-radius: 10px;">
                     <p style="font-size: 18px; color: #333; font-weight: 500;">
                         Bạn đã sẵn sàng để trở thành một phần của cộng đồng bán hàng lớn nhất Việt Nam?
                     </p>
                     <a href="account.html" style="text-decoration: none;">
-                         <button class="btn-register-seller">
+                        <button class="btn-register-seller">
                             Đăng ký/Đăng nhập ngay
                         </button>
                     </a>
                 </div>
 
-                <h2 style="color: #1e3a8a; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Các tính năng nổi bật:</h2>
+                <h2 style="color: #1e3a8a; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                    Các tính năng nổi bật:</h2>
 
                 <div class="seller-feature">
                     <img src="images/icons/seller_product.png" alt="Quản lý Sản phẩm">
                     <div class="feature-text">
                         <h3>Quản lý Sản phẩm toàn diện</h3>
-                        <p>Dễ dàng thêm, chỉnh sửa, và theo dõi tồn kho sản phẩm của bạn. Hệ thống gợi ý thông minh giúp tối ưu hóa mô tả sản phẩm để tiếp cận khách hàng tốt hơn.</p>
+                        <p>Dễ dàng thêm, chỉnh sửa, và theo dõi tồn kho sản phẩm của bạn. Hệ thống gợi ý thông minh giúp
+                            tối ưu hóa mô tả sản phẩm để tiếp cận khách hàng tốt hơn.</p>
                     </div>
                 </div>
 
@@ -129,7 +145,8 @@
                     <img src="images/icons/seller_order.png" alt="Quản lý Đơn hàng">
                     <div class="feature-text">
                         <h3>Quy trình Xử lý Đơn hàng tiện lợi</h3>
-                        <p>Theo dõi mọi trạng thái đơn hàng từ lúc nhận đến khi giao thành công. Tích hợp với các đơn vị vận chuyển uy tín.</p>
+                        <p>Theo dõi mọi trạng thái đơn hàng từ lúc nhận đến khi giao thành công. Tích hợp với các đơn vị
+                            vận chuyển uy tín.</p>
                     </div>
                 </div>
 
@@ -137,12 +154,14 @@
                     <img src="images/icons/seller_analytics.png" alt="Phân tích Doanh thu">
                     <div class="feature-text">
                         <h3>Phân tích Doanh thu & Hiệu suất</h3>
-                        <p>Xem báo cáo chi tiết về doanh thu, lượt truy cập, và hành vi mua sắm của khách hàng. Ra quyết định kinh doanh dựa trên dữ liệu chính xác.</p>
+                        <p>Xem báo cáo chi tiết về doanh thu, lượt truy cập, và hành vi mua sắm của khách hàng. Ra quyết
+                            định kinh doanh dựa trên dữ liệu chính xác.</p>
                     </div>
                 </div>
 
                 <div style="text-align: center; margin-top: 40px;">
-                    <p style="font-size: 16px; color: #555;">Bạn đã có tài khoản bán hàng? <a href="account.html">Đăng nhập tại đây.</a></p>
+                    <p style="font-size: 16px; color: #555;">Bạn đã có tài khoản bán hàng? <a href="account.html">Đăng
+                            nhập tại đây.</a></p>
                 </div>
             </div>
         </section>
@@ -232,4 +251,5 @@
         });
     </script>
 </body>
+
 </html>

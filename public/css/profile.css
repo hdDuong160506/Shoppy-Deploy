@@ -1,0 +1,171 @@
+/* CSS Tùy chỉnh cho trang Profile */
+.profile-container {
+    width: 100%;
+    max-width: 600px;
+    background: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin: 50px auto;
+}
+
+.profile-container h1 {
+    text-align: center;
+    color: #0b38cc;
+    margin-bottom: 30px;
+    font-size: 30px;
+}
+
+.profile-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+    margin-top: 15px;
+}
+
+.profile-form input:read-only {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
+.profile-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+/* ĐÃ CẬP NHẬT CSS CHO NÚT CẬP NHẬT PROFILE (Bo tròn mạnh) */
+.profile-form button[type="submit"] {
+    width: 50%;
+    border-radius: 25px;
+    border: 1px solid #0b38cc;
+    background-color: #0b38cc;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.profile-form button[type="submit"]:hover {
+    background-color: #082a99;
+    transform: scale(1.02);
+}
+
+/* ĐÃ CẬP NHẬT CSS CHO NÚT ĐỔI MẬT KHẨU (Bo tròn mạnh) */
+.btn-logout {
+    width: 50%;
+    background-color: #0b38cc;
+    border: 1px solid #0b38cc;
+    padding: 5px 20px;
+    border-radius: 25px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.btn-logout:hover {
+    background-color: #082a99;
+    transform: scale(1.02);
+}
+
+/* Đảm bảo h1 không bị dính margin  cho form */
+.profile-container h1 {
+    margin-bottom: 30px;
+}
+
+/* === THÊM CSS ĐỂ TẠO KHOẢNG CÁCH DƯỚI DÒNG THÔNG BÁO PROFILE === */
+.profile-message {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    /* Tăng khoảng cách dưới dòng thông báo */
+    text-align: center;
+    font-weight: bold;
+    display: block;
+}
+
+.profile-message.error {
+    color: #f44336;
+}
+
+.profile-message.success {
+    color: #4CAF50;
+}
+
+/* === CSS CHO CUSTOM MODAL === */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9000;
+}
+
+.custom-modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.custom-modal-content h3 {
+    color: #0b38cc;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.custom-modal-content p {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.modal-actions button {
+    width: 45%;
+    padding: 10px;
+    border-radius: 25px;
+    font-size: 14px;
+    text-transform: none;
+    border: 1px solid; /* Thêm border để đồng bộ */
+    color: white; /* Đặt màu chữ mặc định là trắng */
+    cursor: pointer;
+}
+
+#modal-confirm-yes {
+    background-color: #0b38cc;
+    border-color: #0b38cc;
+}
+
+#modal-confirm-no {
+    background-color: #ccc;
+    border-color: #ccc;
+    color: #333;
+}
+
+#modal-confirm-no:hover {
+    background-color: #aaa;
+}

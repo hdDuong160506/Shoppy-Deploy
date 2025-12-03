@@ -1,14 +1,30 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>Đang xử lý...</title>
+    <link rel="icon" type="image/png" href="images/logo/logo1.png">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-init.js"></script> <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .success { color: green; font-weight: bold; }
+    <script src="js/supabase-init.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
     <h3 id="status">🔄 Đang xác thực thông tin...</h3>
     <p id="sub-status">Vui lòng không tắt trình duyệt.</p>
@@ -26,7 +42,7 @@
                 statusEl.textContent = "✅ Xác thực thành công!";
                 statusEl.className = "success";
                 subStatusEl.textContent = "Trang đăng ký cũ đã được cập nhật. Bạn có thể đóng tab này.";
-                
+
                 // Lưu tên người dùng vào localStorage để các tab khác cập nhật UI ngay
                 if (session && session.user) {
                     const name = session.user.user_metadata.name || session.user.email.split('@')[0];
@@ -37,7 +53,7 @@
                 setTimeout(() => {
                     window.close();
                     // Nếu không đóng được thì chuyển về trang chủ
-                    window.location.href = 'index.html'; 
+                    window.location.href = 'index.html';
                 }, 1500);
 
             } else if (event === 'PASSWORD_RECOVERY') {
@@ -49,4 +65,5 @@
         });
     </script>
 </body>
+
 </html>

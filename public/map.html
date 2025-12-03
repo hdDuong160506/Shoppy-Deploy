@@ -4,8 +4,8 @@
 <head>
   <meta charset="utf-8" />
   <title>Shoppy Map</title>
+  <link rel="icon" type="image/png" href="images/logo/logo1.png">
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="/css/map.css" />
@@ -22,8 +22,15 @@
       </svg>
     </div>
 
-    <div class="brand" onclick="window.history.back()" style="cursor: pointer;" title="Quay lại trang trước">
-      Shoppy Map
+    <div class="brand" onclick="window.history.back()" style="cursor: pointer; display: flex; align-items: center;"
+      title="Quay lại trang trước">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        style="margin-right: 5px;">
+        <path d="M19 12H5" />
+        <path d="m12 19-7-7 7-7" />
+      </svg>
+      Quay lại
     </div>
     <div class="input-group">
       <label class="label">Bắt đầu</label>

@@ -20,7 +20,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lat: lat, long: long })
                 }).then(() => {
-                    // (Tuỳ chọn) Đánh dấu là đã gửi xong để file script.js biết
+                    // (Tuỳ chọn) Đánh dấu là đã gửi xong để file index.js biết
                     window.gpsSent = true; 
                     console.log("✅ [GPS-FAST] Đã đồng bộ Session");
                 });
