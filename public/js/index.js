@@ -1577,3 +1577,22 @@ async function updateUserLocation(userId) {
 			console.warn("⚠️ Không lấy được vị trí (User từ chối hoặc lỗi):", err.message);
 		});
 }
+
+// ======================================================================
+// PHẦN 11: LẮNG NGHE SỰ KIỆN GPS CẬP NHẬT (MỚI THÊM)
+// ======================================================================
+
+// Lắng nghe sự kiện từ gps-fast.js bắn sang
+window.addEventListener('location_updated', async () => {
+    console.log("🔄 [INDEX.JS] Phát hiện vị trí mới -> Đang tải lại danh sách sản phẩm...");
+    
+    // 1. Load lại sản phẩm gợi ý (Nó sẽ tự lấy tọa độ mới từ Session server)
+    // Lưu ý: Hàm này bạn đã có sẵn ở dòng 313
+    await loadSuggestedProducts(); 
+    
+    // 2. Cập nhật lại tên đường hiển thị trên UI (cho đẹp)
+    // Lưu ý: Hàm này bạn đã có sẵn ở dòng 925
+    if (typeof updateCurrentLocationDisplay === 'function') {
+        updateCurrentLocationDisplay();
+    }
+});
