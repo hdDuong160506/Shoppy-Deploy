@@ -52,8 +52,17 @@
                 // Thử đóng tab này sau 2 giây (Chỉ hoạt động nếu script mở tab, nhưng cứ thử)
                 setTimeout(() => {
                     window.close();
-                    // Nếu không đóng được thì chuyển về trang chủ
-                    window.location.href = 'index.html';
+                    // Kiểm tra xem có lưu link cũ (trang sản phẩm) không
+                    const previousPage = localStorage.getItem('redirect_after_login');
+                    
+                    if (previousPage) {
+                        // Nếu có link cũ -> Xóa khỏi bộ nhớ và chuyển hướng về đó
+                        localStorage.removeItem('redirect_after_login');
+                        window.location.href = previousPage;
+                    } else {
+                        // Nếu không có -> Mới về trang chủ
+                        window.location.href = 'index.html';
+                    }
                 }, 1500);
 
             } else if (event === 'PASSWORD_RECOVERY') {
