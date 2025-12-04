@@ -23,6 +23,9 @@
                     // (Tuỳ chọn) Đánh dấu là đã gửi xong để file index.js biết
                     window.gpsSent = true; 
                     console.log("✅ [GPS-FAST] Đã đồng bộ Session");
+
+                    // --- [THÊM ĐOẠN NÀY] BẮN TÍN HIỆU ---
+                    window.dispatchEvent(new Event('location_updated'));
                 });
             },
             (error) => {
