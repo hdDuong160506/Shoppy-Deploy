@@ -34,7 +34,7 @@
         const subStatusEl = document.getElementById('sub-status');
 
         // Lấy URL cần chuyển hướng (Ưu tiên: URL đã lưu, Fallback: Trang chủ)
-        const redirectUrl = localStorage.getItem('redirect_after_login');
+        const redirectUrl = localStorage.getItem('redirect_after_login') || 'index.html';
 
         supabase.auth.onAuthStateChange(async (event, session) => {
             console.log("Event:", event);
