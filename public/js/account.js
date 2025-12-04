@@ -128,7 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 msg.className = "message error";
                 btn.disabled = false;
             } else {
-                msg.textContent = "✅ Đăng Nhập Thành công! Đang trở về trang chủ...";
+                // SỬA CHỮA: Cập nhật thông báo và logic chuyển hướng
+                msg.textContent = "✅ Đăng Nhập Thành công! Đang chuyển hướng...";
                 msg.className = "message success";
                 
                 if (data.user) {
@@ -136,7 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('userName', userName);
                 }
                 
-                setTimeout(() => window.location.href = 'index.html', 1000);
+                // 🎯 SỬA CHỮA: Kiểm tra và chuyển hướng về URL đã lưu (nếu có)
+                const redirectUrl = localStorage.getItem('redirect_after_login') || 'index.html';
+                localStorage.removeItem('redirect_after_login'); // Xóa URL đã lưu sau khi sử dụng
+                
+                setTimeout(() => window.location.href = redirectUrl, 1000);
             }
         });
     }
@@ -260,7 +265,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = session.user;
             const name = user.user_metadata.name || user.email.split('@')[0];
             localStorage.setItem('userName', name);
-            setTimeout(() => window.location.href = 'index.html', 500);
+            
+            // 🎯 SỬA CHỮA: Kiểm tra và chuyển hướng về URL đã lưu (nếu có)
+            const redirectUrl = localStorage.getItem('redirect_after_login') || 'index.html';
+            localStorage.removeItem('redirect_after_login'); // Xóa URL đã lưu sau khi sử dụng
+
+            setTimeout(() => window.location.href = redirectUrl, 500);
         }
     });
 

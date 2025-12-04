@@ -231,6 +231,10 @@ window.handleLogout = async function () {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('userName');
         localStorage.removeItem('cart_v1');
+        
+        // 🎯 SỬA CHỮA: LƯU URL HIỆN TẠI TRƯỚC KHI TẢI LẠI TRANG
+        localStorage.setItem('redirect_after_login', window.location.href); 
+
         window.location.reload();
     } catch (err) {
         alert("Đăng xuất thất bại. Vui lòng thử lại.");

@@ -81,6 +81,10 @@ async function checkLoginAndRedirect(message = "Chuyển hướng đến trang �
     if (!user) {
         // Ghi log vào console (KHÔNG HIỂN THỊ BẤT KỲ GIAO DIỆN NÀO)
         console.log(message); 
+        
+        // 🎯 SỬA CHỮA: LƯU URL HIỆN TẠI VÀO LOCALSTORAGE TRƯỚC KHI CHUYỂN TRANG
+        localStorage.setItem('redirect_after_login', window.location.href); 
+        
         // Kích hoạt hiệu ứng chuyển trang và chuyển hướng
         document.body.classList.add('page-fade-out');
         setTimeout(() => {
@@ -151,6 +155,8 @@ window.handleLogout = async function() {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('userName');
         localStorage.removeItem('cart_v1');
+        // 🎯 LƯU URL HIỆN TẠI ĐỂ SAU KHI ĐĂNG NHẬP LẠI (TỪ account.html) SẼ TRỞ VỀ ĐÂY
+        localStorage.setItem('redirect_after_login', window.location.href);
 
         // Cập nhật: Tải lại trang hiện tại (product-detail.html)
         window.location.reload(); 
