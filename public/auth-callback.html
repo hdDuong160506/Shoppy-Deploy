@@ -52,15 +52,15 @@
                 // Thử đóng tab này sau 2 giây (Chỉ hoạt động nếu script mở tab, nhưng cứ thử)
                 setTimeout(() => {
                     window.close();
-                    // Kiểm tra xem có lưu link cũ (trang sản phẩm) không
-                    const previousPage = localStorage.getItem('redirect_after_login');
-                    
-                    if (previousPage) {
-                        // Nếu có link cũ -> Xóa khỏi bộ nhớ và chuyển hướng về đó
+                    // 1. Kiểm tra xem có link cũ (Trang sản phẩm) không
+                    const linkCu = localStorage.getItem('redirect_after_login');
+
+                    if (linkCu) {
+                        // Nếu có -> Xóa cache và quay về đúng trang đó (kèm ID sản phẩm)
                         localStorage.removeItem('redirect_after_login');
-                        window.location.href = previousPage;
+                        window.location.href = linkCu;
                     } else {
-                        // Nếu không có -> Mới về trang chủ
+                        // Nếu không có (ví dụ vào thẳng trang Login) -> Về trang chủ
                         window.location.href = 'index.html';
                     }
                 }, 1500);
