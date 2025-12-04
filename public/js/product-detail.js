@@ -422,86 +422,133 @@ window.buyNow = async function() {
 
 
 // ======================================================================
-// 4. LOGIC XỬ LÝ REVIEWS
+// 4. LOGIC XỬ LÝ REVIEWS (CẬP NHẬT: PHÂN TRANG VỚI XEM THÊM)
 // ======================================================================
+
+// Constants cho pagination
+const REVIEWS_PER_PAGE = 5; // Số review mỗi lần load
+let currentReviewsPage = 0;
+let hasMoreReviews = false;
+let totalReviewsCount = 0;
 
 async function findPsIdAndLoadReviews(productId, storeId) {
     if (!supabaseClient) return;
-    const {
-        data
-    } = await supabaseClient.from('product_store').select('ps_id').eq('product_id', productId).eq('store_id', storeId).single();
+    const { data } = await supabaseClient.from('product_store').select('ps_id').eq('product_id', productId).eq('store_id', storeId).single();
     if (data) {
         currentPsId = data.ps_id;
-        loadReviews(currentPsId);
+        loadReviews(currentPsId, true); // Reset khi load lần đầu
     }
 }
 
-async function loadReviews(psId) {
+async function loadReviews(psId, resetPage = false) {
     if (!psId || !supabaseClient) return;
 
-    // Check Login UI
-    const {
-        data: {
-            session
-        }
-    } = await supabaseClient.auth.getSession();
-    const formContainer = $('#review-form-container');
-    const loginPrompt = $('#login-prompt');
+    // Reset page về 0 nếu cần
+    if (resetPage) {
+        currentReviewsPage = 0;
+    }
 
-    if (formContainer && loginPrompt) {
-        if (session) {
-            formContainer.style.display = 'block';
-            loginPrompt.style.display = 'none';
-        } else {
-            formContainer.style.display = 'none';
-            loginPrompt.style.display = 'block';
+    // Check Login UI (chỉ làm khi reset/lần đầu)
+    if (resetPage) {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const formContainer = $('#review-form-container');
+        const loginPrompt = $('#login-prompt');
+
+        if (formContainer && loginPrompt) {
+            if (session) {
+                formContainer.style.display = 'block';
+                loginPrompt.style.display = 'none';
+            } else {
+                formContainer.style.display = 'none';
+                loginPrompt.style.display = 'block';
+            }
         }
     }
 
-    // Lấy Reviews
     const listEl = $('#reviews-list');
-    if (listEl) listEl.innerHTML = '<p style="color:#999; padding:10px">Đang tải đánh giá...</p>';
+    
+    // Hiển thị loading (chỉ khi reset)
+    if (resetPage && listEl) {
+        listEl.innerHTML = '<p style="color:#999; padding:10px">Đang tải đánh giá...</p>';
+    }
 
-    const {
-        data: reviews,
-        error
-    } = await supabaseClient
+    // 🎯 BƯỚC 1: Đếm tổng số reviews để hiển thị header
+    if (resetPage) {
+        // Dùng count: 'exact' với head: true để chỉ đếm
+        const { count, error: countError } = await supabaseClient
+            .from('reviews')
+            .select('*', { count: 'exact', head: true })
+            .eq('ps_id', psId);
+
+        if (!countError && count !== null) {
+            totalReviewsCount = count;
+            
+            // Tính rating trung bình (chỉ khi có reviews)
+            if (count > 0) {
+                const { data: ratingData } = await supabaseClient
+                    .from('reviews')
+                    .select('rating')
+                    .eq('ps_id', psId);
+                
+                if (ratingData && ratingData.length > 0) {
+                    const sumRating = ratingData.reduce((acc, curr) => acc + (curr.rating || 0), 0);
+                    const avgRating = sumRating / ratingData.length;
+                    updateReviewHeader(avgRating, count);
+                }
+            } else {
+                updateReviewHeader(0, 0);
+            }
+        } else {
+            totalReviewsCount = 0;
+            updateReviewHeader(0, 0);
+        }
+    }
+
+    // 🎯 BƯỚC 2: Load reviews với phân trang
+    const from = currentReviewsPage * REVIEWS_PER_PAGE;
+    const to = from + REVIEWS_PER_PAGE - 1;
+
+    const { data: reviews, error } = await supabaseClient
         .from('reviews')
         .select('*')
         .eq('ps_id', psId)
-        .order('created_at', {
-            ascending: false
-        });
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
     if (error) {
         console.error("Lỗi tải review:", error);
-        if (listEl) listEl.innerHTML = '<p style="color:red">Không thể tải đánh giá.</p>';
+        if (resetPage && listEl) {
+            listEl.innerHTML = '<p style="color:red">Không thể tải đánh giá.</p>';
+        }
         return;
     }
 
-    // Update Header
-    if (reviews && reviews.length > 0) {
-        const count = reviews.length;
-        const sumRating = reviews.reduce((acc, curr) => acc + (curr.rating || 0), 0);
-        const avgRating = sumRating / count;
-        updateReviewHeader(avgRating, count);
-    } else {
-        updateReviewHeader(0, 0);
-    }
+    // Kiểm tra còn review để load không
+    hasMoreReviews = reviews && reviews.length === REVIEWS_PER_PAGE;
 
     if (!listEl) return;
-    listEl.innerHTML = '';
+
+    // Clear list nếu reset
+    if (resetPage) {
+        listEl.innerHTML = '';
+    }
+
+    // Xóa nút "Xem thêm" cũ nếu có
+    const oldLoadMoreBtn = document.getElementById('load-more-reviews-btn');
+    if (oldLoadMoreBtn) {
+        oldLoadMoreBtn.remove();
+    }
 
     if (!reviews || reviews.length === 0) {
-        listEl.innerHTML = '<p style="color:#777; font-style: italic;">Chưa có đánh giá nào.</p>';
+        if (resetPage) {
+            listEl.innerHTML = '<p style="color:#777; font-style: italic;">Chưa có đánh giá nào.</p>';
+        }
         return;
     }
 
-    // Lấy thông tin User
+    // 🎯 BƯỚC 3: Lấy thông tin User
     const userIds = [...new Set(reviews.map(r => r.user_id))];
-    const {
-        data: profiles
-    } = await supabaseClient
+    const { data: profiles } = await supabaseClient
         .from('profiles')
         .select('id, name, avatar_url')
         .in('id', userIds);
@@ -509,6 +556,7 @@ async function loadReviews(psId) {
     const profileMap = {};
     if (profiles) profiles.forEach(p => profileMap[p.id] = p);
 
+    // 🎯 BƯỚC 4: Render reviews
     reviews.forEach(r => {
         const user = profileMap[r.user_id] || {
             name: 'Người dùng ẩn danh',
@@ -535,6 +583,54 @@ async function loadReviews(psId) {
         `;
         listEl.appendChild(item);
     });
+
+    // 🎯 BƯỚC 5: Thêm nút "Xem thêm" nếu còn reviews
+    if (hasMoreReviews) {
+        const loadedCount = (currentReviewsPage + 1) * REVIEWS_PER_PAGE;
+        const remainingCount = Math.max(0, totalReviewsCount - loadedCount);
+        
+        // ✅ CHỈ HIỂN THỊ NÚT NẾU CÒN ĐÁNH GIÁ
+        if (remainingCount > 0) {
+            const loadMoreBtn = document.createElement('button');
+            loadMoreBtn.id = 'load-more-reviews-btn';
+            loadMoreBtn.className = 'btn-load-more-reviews';
+            loadMoreBtn.innerHTML = `
+                Xem thêm đánh giá 
+            `;
+            loadMoreBtn.style.cssText = `
+                width: 100%;
+                padding: 12px 20px;
+                margin-top: 15px;
+                background: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                color: #333;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            `;
+
+            loadMoreBtn.onmouseover = () => {
+                loadMoreBtn.style.background = '#e9ecef';
+                loadMoreBtn.style.borderColor = '#bbb';
+            };
+            loadMoreBtn.onmouseout = () => {
+                loadMoreBtn.style.background = '#f8f9fa';
+                loadMoreBtn.style.borderColor = '#ddd';
+            };
+
+            loadMoreBtn.onclick = async () => {
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.innerHTML = '⏳ Đang tải...';
+                
+                currentReviewsPage++;
+                await loadReviews(psId, false); // Load thêm không reset
+            };
+
+            listEl.appendChild(loadMoreBtn);
+        }
+    }
 }
 
 function updateReviewHeader(rating, count) {
@@ -578,9 +674,7 @@ async function submitReview() {
     btn.disabled = true;
 
     try {
-        const {
-            error
-        } = await supabaseClient
+        const { error } = await supabaseClient
             .from('reviews')
             .insert([{
                 ps_id: currentPsId,
@@ -591,20 +685,20 @@ async function submitReview() {
 
         if (error) throw error;
 
-        alert("Cảm ơn bạn đã đánh giá!");
+        showNotification("Cảm ơn bạn đã đánh giá!", "✅");
         commentInput.value = '';
         if (ratingEl) ratingEl.checked = false;
 
-        loadReviews(currentPsId);
+        // Reset về trang đầu tiên và reload
+        loadReviews(currentPsId, true);
 
     } catch (err) {
-        alert("Gửi thất bại: " + err.message);
+        showNotification("Gửi thất bại: " + err.message, "❌");
     } finally {
         btn.textContent = "Gửi đánh giá";
         btn.disabled = false;
     }
 }
-
 // ======================================================================
 // 5. LOGIC VOICE SEARCH
 // ======================================================================
