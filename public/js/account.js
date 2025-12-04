@@ -1,14 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Kiểm tra xem khách đến từ trang nào (Product, Index...)
-    const trangTruocDo = document.referrer;
-    
-    // Nếu có trang trước và không phải là reload lại trang login/auth
-    if (trangTruocDo && !trangTruocDo.includes('account.html') && !trangTruocDo.includes('auth-callback.html')) {
-        // Lưu lại link trang sản phẩm (hoặc bất kỳ trang nào khách vừa ghé)
-        localStorage.setItem('redirect_after_login', trangTruocDo);
-    }
-
     // Kiểm tra thư viện Supabase
     if (typeof supabase === 'undefined') {
         console.error("❌ Lỗi: Chưa load thư viện Supabase!");

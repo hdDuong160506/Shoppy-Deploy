@@ -49,21 +49,16 @@
                     localStorage.setItem('userName', name);
                 }
 
-                // Thử đóng tab này sau 2 giây (Chỉ hoạt động nếu script mở tab, nhưng cứ thử)
-                setTimeout(() => {
-                    window.close();
-                    // 1. Kiểm tra xem có link cũ (Trang sản phẩm) không
-                    const linkCu = localStorage.getItem('redirect_after_login');
+                const savedRedirectUrl = localStorage.getItem('redirect_after_login');
+                if (savedRedirectUrl) {
+                    localStorage.removeItem('redirect_after_login');
+                }
 
-                    if (linkCu) {
-                        // Nếu có -> Xóa cache và quay về đúng trang đó (kèm ID sản phẩm)
-                        localStorage.removeItem('redirect_after_login');
-                        window.location.href = linkCu;
-                    } else {
-                        // Nếu không có (ví dụ vào thẳng trang Login) -> Về trang chủ
-                        window.location.href = 'index.html';
-                    }
-                }, 1500);
+                // Sau đó dùng biến đã lưu để redirect
+                setTimeout(() => {
+                    const finalUrl = savedRedirectUrl || 'index.html';
+                    window.location.href = finalUrl;
+                }, 1000);
 
             } else if (event === 'PASSWORD_RECOVERY') {
                 // TRƯỜNG HỢP 2: QUÊN MẬT KHẨU
