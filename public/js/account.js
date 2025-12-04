@@ -240,10 +240,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (error) {
-                    msg.textContent = "❌ Lỗi: " + error.message;
+                    let thongBao = error.message;
+
+                    // 1. Dịch lỗi mật khẩu yếu (cái bạn đang gặp)
+                    if (thongBao.includes("Password should be at least")) {
+                        thongBao = "Mật khẩu quá yếu! Cần ít nhất 8 ký tự, gồm: chữ hoa, chữ thường, số và ký tự đặc biệt (!@#$).";
+                    }
+                    
+                    // 2. Dịch lỗi gửi quá nhanh (Rate limit)
+                    else if (thongBao.includes("Rate limit exceeded") || thongBao.includes("Too many requests")) {
+                        thongBao = "Bạn thao tác quá nhanh. Vui lòng đợi khoảng 60 giây rồi thử lại.";
+                    }
+
+                    // 3. Hiển thị thông báo đã dịch
+                    msg.textContent = "❌ " + thongBao;
                     msg.className = "message error";
                 } else {
-                    msg.textContent = "✅ Đã gửi link! Vui lòng kiểm tra hộp thư.";
+                    msg.textContent = "✅ Đã gửi link! Vui lòng kiểm tra hộp thư (Bao gồm cả thư rác/spam).";
                     msg.className = "message success";
                 }
 
