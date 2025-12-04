@@ -79,8 +79,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (error) {
-                    msg.textContent = "❌ " + error.message;
+                    // --- BẮT ĐẦU PHẦN SỬA ---
+                    let noiDungLoi = error.message;
+
+                    // 1. Bắt lỗi mật khẩu yếu (Lỗi bạn đang gặp)
+                    if (noiDungLoi.includes("Password should be at least")) {
+                        noiDungLoi = "Mật khẩu quá yếu! Cần ít nhất 8 ký tự, gồm: chữ Hoa, thường, số và ký tự đặc biệt (!@#).";
+                    }
+                    // 2. Bắt lỗi thao tác quá nhanh (Rate limit)
+                    else if (noiDungLoi.includes("Rate limit") || noiDungLoi.includes("Too many requests")) {
+                        noiDungLoi = "Bạn thao tác quá nhanh. Vui lòng đợi 60 giây rồi thử lại.";
+                    }
+                    // 3. Bắt lỗi email đã tồn tại (dự phòng)
+                    else if (noiDungLoi.includes("User already registered")) {
+                        noiDungLoi = "Email này đã có người đăng ký.";
+                    }
+
+                    // Hiển thị thông báo tiếng Việt
+                    msg.textContent = "❌ " + noiDungLoi;
                     msg.className = "message error";
+                    // --- KẾT THÚC PHẦN SỬA ---
                 } else {
                     msg.innerHTML = `
                         <span style="color:green; font-weight:bold">✅ Đăng ký thành công!</span><br>
@@ -240,23 +258,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (error) {
-                    let thongBao = error.message;
-
-                    // 1. Dịch lỗi mật khẩu yếu (cái bạn đang gặp)
-                    if (thongBao.includes("Password should be at least")) {
-                        thongBao = "Mật khẩu quá yếu! Cần ít nhất 8 ký tự, gồm: chữ hoa, chữ thường, số và ký tự đặc biệt (!@#$).";
-                    }
-                    
-                    // 2. Dịch lỗi gửi quá nhanh (Rate limit)
-                    else if (thongBao.includes("Rate limit exceeded") || thongBao.includes("Too many requests")) {
-                        thongBao = "Bạn thao tác quá nhanh. Vui lòng đợi khoảng 60 giây rồi thử lại.";
-                    }
-
-                    // 3. Hiển thị thông báo đã dịch
-                    msg.textContent = "❌ " + thongBao;
+                    msg.textContent = "❌ Lỗi: " + error.message;
                     msg.className = "message error";
                 } else {
-                    msg.textContent = "✅ Đã gửi link! Vui lòng kiểm tra hộp thư (Bao gồm cả thư rác/spam).";
+                    msg.textContent = "✅ Đã gửi link! Vui lòng kiểm tra hộp thư.";
                     msg.className = "message success";
                 }
 
