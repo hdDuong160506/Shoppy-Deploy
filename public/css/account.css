@@ -528,3 +528,36 @@ button:disabled {
   color: #f46236;
 }
 
+/* ========================================== */
+/* ===== CSS ẨN/HIỆN MẬT KHẨU MỚI ======= */
+/* ========================================== */
+
+/* Lớp bao bọc input và icon */
+.input-group {
+  position: relative;
+  width: 100%;
+  margin: 8px 0; /* Giữ lại margin 8px 0 như input gốc */
+}
+
+/* Đảm bảo input bên trong có độ rộng 100% của group */
+.input-group input {
+  margin: 0; /* Xóa margin cũ, thay bằng margin của .input-group */
+}
+
+/* Định dạng icon mắt */
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
+  font-size: 18px; /* Kích thước icon */
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-password:hover {
+  color: #333;
+}

@@ -274,4 +274,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ============================================================
+    // 7. XỬ LÝ ẨN/HIỆN MẬT KHẨU (TOGGLE PASSWORD)
+    // ============================================================
+    document.querySelectorAll('.toggle-password').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const targetId = toggle.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            
+            if (!passwordInput) return;
+
+            // Chuyển đổi loại input
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // Chuyển đổi icon (Sử dụng SVG Eye và EyeSlash của Bootstrap Icons)
+            if (type === 'text') {
+                // Đang hiển thị, chuyển sang icon ẩn (EyeSlash)
+                toggle.innerHTML = `
+                    <svg fill="currentColor" viewBox="0 0 16 16" height="1em" width="1em">
+                        <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 00-2.79.588l.77.771A5.944 5.944 0 018 3.5c2.12 0 3.879 1.168 5.168 2.457L13.359 11.238zm-4.764 1.957A5.94 5.94 0 018 12.5c-2.12 0-3.879-1.168-5.168-2.457L2.542 9.297l-.744.743A9.01 9.01 0 008 13.5c1.45 0 2.8-.57 3.795-1.503l-1.44-1.44z"/>
+                        <path d="M.293.293a1 1 0 011.414 0L14.707 14.707a1 1 0 01-1.414 1.414L.293 1.707a1 1 0 010-1.414z"/>
+                        <path d="M10.5 8a2.5 2.5 0 01-5 0 2.5 2.5 0 015 0z"/>
+                    </svg>
+                `;
+            } else {
+                // Đang ẩn, chuyển sang icon hiển thị (Eye)
+                toggle.innerHTML = `
+                    <svg fill="currentColor" viewBox="0 0 16 16" height="1em" width="1em">
+                        <path d="M10.5 8a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        <path
+                            d="M0 8s3-5.5 8-5.5 8 5.5 8 5.5-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"
+                        />
+                    </svg>
+                `;
+            }
+        });
+    });
+
 });

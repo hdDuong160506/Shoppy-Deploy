@@ -791,7 +791,38 @@ window.sortAndRenderStores = function () {
     renderProductSummary(productToRender);
 }
 
-function renderProductSummary(product) {
+// Hàm phụ trợ: Tính khoảng cách giữa 2 tọa độ (km)
+
+function haversineDistance(lat1, lon1, lat2, lon2) {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+    const R = 6371; // Bán kính trái đất (km)
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+// Hàm chính: Render thông tin sản phẩm và danh sách cửa hàng
+
+async function renderProductSummary(product) {
+    const $ = document.querySelector.bind(document);
+
+    // Nếu window.allStores chưa có, ta gọi API lấy về ngay lập tức
+    if (!window.allStores) {
+        try {
+            const res = await fetch('/map/api/stores');
+            if (res.ok) {
+                window.allStores = await res.json();
+            }
+        } catch (e) {
+            console.error("Lỗi khi tải danh sách cửa hàng:", e);
+        }
+    }
+
     // --- 1. Cập nhật thông tin tổng quan sản phẩm ---
     if ($('#summary-product-name')) $('#summary-product-name').textContent = product.product_name;
     if ($('#breadcrumb-product-name')) $('#breadcrumb-product-name').textContent = product.product_name;
@@ -825,8 +856,41 @@ function renderProductSummary(product) {
         return;
     }
 
+    let userLat = 0;
+    let userLon = 0;
+    // CẤU HÌNH TỌA ĐỘ NGƯỜI DÙNG
+    try {
+        const response = await fetch('/map/api/get-current-location');
+
+        if (!response.ok) {
+            throw new Error('Lỗi kết nối tới Server');
+        }
+
+        const data = await response.json();
+
+        // 3. Kiểm tra dữ liệu trả về
+        if (data.lat && data.long) {
+            const lat = parseFloat(data.lat);
+            const lng = parseFloat(data.long);
+
+            // Cập nhật dữ liệu người dùng
+            userLat = lat;
+            userLon = lng;
+
+            console.log("📍 Đã lấy toạ độ từ Session:", lat, lng);
+
+        } else {
+            // Trường hợp Session trả về null
+            throw new Error("Session chưa có dữ liệu vị trí");
+        }
+
+    } catch (error) {
+        console.warn("⚠️ Không lấy được vị trí từ Session:", error);
+
+    }
+
     storesToRender.forEach(store => {
-        // ... (Logic tính giá và ảnh giữ nguyên)
+        // --- Logic ảnh và giá ---
         const mainImage = store.product_images && store.product_images.length > 0
             ? (store.product_images.find(img => img.ps_type === 1) || store.product_images[0])
             : null;
@@ -844,13 +908,31 @@ function renderProductSummary(product) {
             storePriceText += ` - ${formatMoney(storeMaxPrice)}`;
         }
 
-        // HIỂN THỊ KHOẢNG CÁCH
-        const distanceInfo = store.ps_distance
-            ? `<span style="margin-left: 10px;">| Cách bạn: ${store.ps_distance.toFixed(2)} km</span>`
-            : ``;
+        // --- 3. LOGIC HIỂN THỊ KHOẢNG CÁCH ---
+        let distanceHtml = '';
+
+        // Tìm thông tin đầy đủ của store trong window.allStores (để lấy lat/long chính xác)
+        const fullStoreInfo = window.allStores?.find(s => String(s.store_id) === String(store.store_id));
+
+        // Lấy tọa độ: Ưu tiên lấy từ fullStoreInfo, nếu không có thì lấy từ store hiện tại, cuối cùng là 0
+        const storeLat = fullStoreInfo ? fullStoreInfo.lat : Number(store.lat || 0);
+        const storeLon = fullStoreInfo ? fullStoreInfo.long : Number(store.long || 0);
+
+        if (userLat && userLon && storeLat && storeLon) {
+            // Tính toán bằng Haversine và sai số
+            const distKm = haversineDistance(userLat, userLon, storeLat, storeLon) * 1.3;
+            if (distKm !== null) {
+                // Style màu xanh lá
+                distanceHtml = `<span style="margin-left: 10px; color: #2ecc71; font-weight: 500;">| Cách bạn khoảng: ${distKm.toFixed(2)} km</span>`;
+            }
+        } else if (store.ps_distance) {
+            // Fallback: Dùng dữ liệu khoảng cách có sẵn từ DB (nếu có)
+            distanceHtml = `<span style="margin-left: 10px;">| Cách bạn khoảng : ${Number(store.ps_distance).toFixed(2)} km</span>`;
+        }
 
         const storeCard = document.createElement('a');
         storeCard.className = 'store-item-card';
+        // Truyền thêm tọa độ user vào URL nếu cần để trang sau vẽ đường ngay
         storeCard.href = `product-detail.html?product_id=${product.product_id}&store_id=${store.store_id}`;
 
         storeCard.innerHTML = `
@@ -859,7 +941,7 @@ function renderProductSummary(product) {
                 <div class="store-name">${store.store_name}</div>
                 <div style="font-size:14px; color:#555;">Địa chỉ: ${store.store_address || 'Đang cập nhật'}</div>
                 <div class="store-price">Giá: ${storePriceText}</div>
-                <div class="store-review">⭐ ${rating} (${reviewCount} đánh giá) ${distanceInfo}</div>
+                <div class="store-review">⭐ ${rating} (${reviewCount} đánh giá) ${distanceHtml}</div>
             </div>
             <div class="store-actions">
                 <button>Xem Chi Tiết</button>

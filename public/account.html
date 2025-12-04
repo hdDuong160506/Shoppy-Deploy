@@ -34,7 +34,19 @@
         <h1>Tạo tài khoản</h1>
         <input type="text" id="reg-name" placeholder="Họ Và Tên" required minlength="2" maxlength="100" />
         <input type="email" id="reg-email" placeholder="Email" required />
-        <input type="password" id="reg-pwd" placeholder="Mật Khẩu" required minlength="6" />
+
+        <div class="input-group">
+          <input type="password" id="reg-pwd" placeholder="Mật Khẩu" required minlength="6" />
+          <span class="toggle-password" data-target="reg-pwd">
+            <svg fill="currentColor" viewBox="0 0 16 16" height="1em" width="1em">
+              <path d="M10.5 8a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              <path
+                d="M0 8s3-5.5 8-5.5 8 5.5 8 5.5-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"
+              />
+            </svg>
+          </span>
+        </div>
+        
         <button type="submit">Đăng Ký</button>
         <span id="register-message" class="message"></span>
       </form>
@@ -61,7 +73,18 @@
         </div>
         <span>hoặc sử dụng mật khẩu email của bạn</span>
         <input type="email" id="login-email" placeholder="Email" required />
-        <input type="password" id="login-pwd" placeholder="Mật Khẩu" required />
+
+        <div class="input-group">
+          <input type="password" id="login-pwd" placeholder="Mật Khẩu" required />
+          <span class="toggle-password" data-target="login-pwd">
+            <svg fill="currentColor" viewBox="0 0 16 16" height="1em" width="1em">
+              <path d="M10.5 8a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              <path
+                d="M0 8s3-5.5 8-5.5 8 5.5 8 5.5-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"
+              />
+            </svg>
+          </span>
+        </div>
 
         <a href="#" id="forgot-password-link">Quên mật khẩu?</a>
 

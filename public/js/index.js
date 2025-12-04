@@ -272,7 +272,7 @@ function renderSearchResultsError(message) {
 // --------------------------------------------------------------------------
 
 // Load sản phẩm gợi ý từ API
-async function loadSuggestedProducts(locationName = null) {
+async function loadSuggestedProducts(locationName = null, useGps = false) {
 	const wrap = $('#suggested-products-list');
 
 	showLoading(); // HIỂN THỊ LOADING
@@ -283,32 +283,15 @@ async function loadSuggestedProducts(locationName = null) {
 	}
 
 	try {
-		// Lấy tọa độ GPS nếu có (khi không có locationName)
-		let latitude = null;
-		let longitude = null;
-
-		if (!locationName && navigator.geolocation) {
-			try {
-				const position = await new Promise((resolve, reject) => {
-					navigator.geolocation.getCurrentPosition(resolve, reject);
-				});
-				latitude = position.coords.latitude;
-				longitude = position.coords.longitude;
-			} catch (err) {
-				console.log("Không lấy được GPS, dùng location mặc định");
-			}
-		}
-
-		// Gọi API
+		// Gọi API với param use_gps
 		const res = await fetch('/api/suggest_products', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				latitude: latitude,
-				longitude: longitude,
 				location_name: locationName,
+				use_gps: useGps,
 				limit: 100
 			})
 		});
@@ -1487,6 +1470,15 @@ window.onload = async function () {
 		});
 	}
 
+	// === 5. Xử lý event cho nút "Gợi ý theo GPS" ===
+	const suggestByGpsBtn = $('#suggest-by-gps-btn');
+	if (suggestByGpsBtn) {
+		suggestByGpsBtn.addEventListener('click', () => {
+			// Load sản phẩm gợi ý theo GPS
+			loadSuggestedProducts(null, true);
+		});
+	}
+
 	// 5. Hiệu ứng khi nhấn vào link Tài Khoản và Kênh Người Bán (ĐÃ THÊM MỚI)
 	function applyClickEffect(e) {
 		e.preventDefault(); // Ngăn hành động chuyển trang mặc định
@@ -1577,22 +1569,3 @@ async function updateUserLocation(userId) {
 			console.warn("⚠️ Không lấy được vị trí (User từ chối hoặc lỗi):", err.message);
 		});
 }
-
-// ======================================================================
-// PHẦN 11: LẮNG NGHE SỰ KIỆN GPS CẬP NHẬT (MỚI THÊM)
-// ======================================================================
-
-// Lắng nghe sự kiện từ gps-fast.js bắn sang
-window.addEventListener('location_updated', async () => {
-    console.log("🔄 [INDEX.JS] Phát hiện vị trí mới -> Đang tải lại danh sách sản phẩm...");
-    
-    // 1. Load lại sản phẩm gợi ý (Nó sẽ tự lấy tọa độ mới từ Session server)
-    // Lưu ý: Hàm này bạn đã có sẵn ở dòng 313
-    await loadSuggestedProducts(); 
-    
-    // 2. Cập nhật lại tên đường hiển thị trên UI (cho đẹp)
-    // Lưu ý: Hàm này bạn đã có sẵn ở dòng 925
-    if (typeof updateCurrentLocationDisplay === 'function') {
-        updateCurrentLocationDisplay();
-    }
-});
