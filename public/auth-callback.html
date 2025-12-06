@@ -6,7 +6,6 @@
     <title>Đang xử lý...</title>
     <link rel="icon" type="image/png" href="images/logo/logo1.png">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-init.js"></script>
     <style>
         body {
             font-family: sans-serif;
@@ -16,19 +15,42 @@
             align-items: center;
             height: 100vh;
             text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .success {
-            color: green;
+            color: #4ade80;
             font-weight: bold;
+        }
+
+        h3 {
+            margin: 10px 0;
         }
     </style>
 </head>
 
 <body>
+    <div class="spinner"></div>
     <h3 id="status">🔄 Đang xác thực thông tin...</h3>
     <p id="sub-status">Vui lòng không tắt trình duyệt.</p>
 
+    <!-- 🎯 LOAD THỨ TỰ ĐÚNG: init -> redirect handler -->
     <script src="js/supabase-init.js"></script>
     <script src="js/redirect-handler.js"></script>
 
@@ -36,9 +58,9 @@
         const statusEl = document.getElementById('status');
         const subStatusEl = document.getElementById('sub-status');
 
-        // Cập nhật UI cho trang callback
+        // 🎯 CHỈ CẬP NHẬT UI, KHÔNG TỰ REDIRECT (để redirect-handler.js xử lý)
         supabase.auth.onAuthStateChange((event, session) => {
-            console.log('🔔 [Callback] Auth event:', event);
+            console.log('🔔 [Callback Page] Auth event:', event);
 
             if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
                 if (statusEl && subStatusEl) {
@@ -46,12 +68,15 @@
                     statusEl.className = "success";
                     subStatusEl.textContent = "Đang quay lại trang trước...";
                 }
-                // redirect-handler.js sẽ tự động xử lý redirect
+                // 🎯 redirect-handler.js sẽ tự động xử lý redirect
             } else if (event === 'PASSWORD_RECOVERY') {
                 if (statusEl) {
                     statusEl.textContent = "🔐 Đang chuyển đến trang đặt lại mật khẩu...";
                 }
-                window.location.href = 'reset-password.html';
+                // Đặt lại mật khẩu vẫn redirect thủ công
+                setTimeout(() => {
+                    window.location.href = 'reset-password.html';
+                }, 1000);
             }
         });
     </script>

@@ -119,11 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ============================================================
-    // 3. XỬ LÝ ĐĂNG NHẬP (BÌNH THƯỜNG)
-    // ============================================================
+    // ======================================================================
+    // PHẦN 3: XỬ LÝ ĐĂNG NHẬP (FIXED - BỎ LOGIC REDIRECT)
+    // ======================================================================
     const loginForm = document.getElementById('login-form');
-    
+
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -146,20 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 msg.className = "message error";
                 btn.disabled = false;
             } else {
-                // SỬA CHỮA: Cập nhật thông báo và logic chuyển hướng
+                // 🎯 FIXED: CHỈ HIỂN THỊ THÔNG BÁO, KHÔNG TỰ REDIRECT
                 msg.textContent = "✅ Đăng Nhập Thành công! Đang chuyển hướng...";
                 msg.className = "message success";
                 
-                if (data.user) {
-                    const userName = data.user.user_metadata.name || email.split('@')[0];
-                    localStorage.setItem('userName', userName);
-                }
-                
-                // 🎯 SỬA CHỮA: Kiểm tra và chuyển hướng về URL đã lưu (nếu có)
-                const redirectUrl = localStorage.getItem('redirect_after_login') || 'index.html';
-                localStorage.removeItem('redirect_after_login'); // Xóa URL đã lưu sau khi sử dụng
-                
-                setTimeout(() => window.location.href = redirectUrl, 1000);
+                // 🎯 redirect-handler.js SẼ TỰ ĐỘNG XỬ LÝ REDIRECT
+                // (Không cần code gì thêm ở đây)
             }
         });
     }
@@ -275,20 +267,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ============================================================
-    // 6. ĐỒNG BỘ ĐĂNG NHẬP TỪ TAB KHÁC
-    // ============================================================
-    supabase.auth.onAuthStateChange((event, session) => {
+    // ======================================================================
+    // PHẦN 6: ĐỒNG BỘ ĐĂNG NHẬP TỪ TAB KHÁC (FIXED - BỎ LOGIC REDIRECT)
+    // ======================================================================
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log('🔔 [account.js] Auth event:', event);
+        
+        // 🎯 FIXED: CHỈ LƯU TÊN USER, KHÔNG TỰ REDIRECT
         if (event === 'SIGNED_IN' && session) {
             const user = session.user;
             const name = user.user_metadata.name || user.email.split('@')[0];
             localStorage.setItem('userName', name);
             
-            // 🎯 SỬA CHỮA: Kiểm tra và chuyển hướng về URL đã lưu (nếu có)
-            const redirectUrl = localStorage.getItem('redirect_after_login') || 'index.html';
-            localStorage.removeItem('redirect_after_login'); // Xóa URL đã lưu sau khi sử dụng
-
-            setTimeout(() => window.location.href = redirectUrl, 500);
+            // 🎯 redirect-handler.js SẼ TỰ ĐỘNG XỬ LÝ REDIRECT
+            console.log('👤 User logged in:', name);
         }
     });
 
