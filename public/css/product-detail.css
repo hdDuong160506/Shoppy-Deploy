@@ -1323,3 +1323,13 @@ footer {
     opacity: 0;
   }
 }
+
+/* THÊM MỚI ĐỂ XÓA VỆT XANH DƯỚI ICON MẠNG XÃ HỘI */
+.social-icons a {
+  /* Quan trọng: Bỏ gạch chân link */
+  text-decoration: none !important;
+  /* Đảm bảo không có viền ngoài khi được focus/click */
+  outline: none !important;
+  /* Đảm bảo không có đường viền nào khác */
+  border: none !important;
+}

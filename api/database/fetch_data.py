@@ -16,29 +16,49 @@ def sanitize_input(text):
     """Loại ký tự nguy hiểm để tránh SQL injection đơn giản"""
     return re.sub(r"[\"';]", "", text).strip()
 
-def fetch_rows_by_search(search_text):
+def fetch_rows_by_search_and_location(search_text: str = None, location_id: str = None):
     """
-    Tìm kiếm sản phẩm, hỗ trợ nhiều tên phân cách bởi: , . -
+    Tìm kiếm sản phẩm với các bộ lọc:
+    - search_text: Tìm kiếm sản phẩm, hỗ trợ nhiều tên phân cách bởi: , . -
+    - location_id: Lọc sản phẩm theo khu vực
     VD: "Cơm tấm, Cơm cháy" hoặc "món 1. món 2" hoặc "món 3 - món 4"
     """
-    # Tách theo các dấu phân cách: , . -
-    products = re.split(r'[,.\-]', search_text)
-    products = [sanitize_input(p).lower().strip() for p in products if p.strip()]
+    conditions = []
     
-    # Nếu có nhiều món → tạo điều kiện OR
-    if len(products) > 1:
-        conditions = " OR ".join([
-            f"unaccent(lower(p.name)) LIKE '%' || unaccent(lower('{prod}')) || '%'"
-            for prod in products
-        ])
-        where_clause = f"WHERE ({conditions})"
+    # Xử lý tìm kiếm theo tên sản phẩm
+    if search_text:
+        # Tách theo các dấu phân cách: , . -
+        products = re.split(r'[,.\-]', search_text)
+        products = [sanitize_input(p).lower().strip() for p in products if p.strip()]
+        
+        # Nếu có nhiều món → tạo điều kiện OR
+        if len(products) > 1:
+            name_conditions = " OR ".join([
+                f"unaccent(lower(p.name)) LIKE '%' || unaccent(lower('{prod}')) || '%'"
+                for prod in products
+            ])
+            conditions.append(f"({name_conditions})")
+        else:
+            # Chỉ có 1 món
+            safe_search = sanitize_input(search_text).lower()
+            conditions.append(f"unaccent(lower(p.name)) LIKE '%' || unaccent(lower('{safe_search}')) || '%'")
+    
+    # Xử lý location_id - đảm bảo là chuỗi
+    if location_id:
+        # Chuyển location_id thành chuỗi nếu nó là số
+        if not isinstance(location_id, str):
+            location_id = str(location_id)
+        safe_location_id = sanitize_input(location_id)
+        conditions.append(f"l.location_id = '{safe_location_id}'")
+    
+    # Xây dựng WHERE clause
+    if conditions:
+        where_clause = "WHERE " + " AND ".join(conditions)
     else:
-        # Chỉ có 1 món
-        safe_search = sanitize_input(search_text).lower()
-        where_clause = f"WHERE unaccent(lower(p.name)) LIKE '%' || unaccent(lower('{safe_search}')) || '%'"
+        where_clause = ""
 
     query = f"""
-        SELECT 
+        SELECT DISTINCT
             p.product_id, 
             p.name AS product_name, 
             p.des AS product_des,
@@ -81,7 +101,9 @@ def fetch_rows_by_search(search_text):
         LEFT JOIN store s ON s.store_id = ps.store_id
         LEFT JOIN product_images pi ON pi.ps_id = ps.ps_id
         {where_clause}
+        ORDER BY ps.average_rating DESC NULLS LAST
     """
+    
     result = supabase.rpc("exec_sql", {"sql": query}).execute()
     return result.data
 

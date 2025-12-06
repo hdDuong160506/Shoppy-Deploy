@@ -1,4 +1,4 @@
-from database.fetch_data import fetch_full_data, fetch_rows_by_search
+from database.fetch_data import fetch_rows_by_search_and_location
 from utils.haversine_function import haversine_function
 from API.API_groq_fix_query import groq_fix_query
 
@@ -71,17 +71,18 @@ def build_product_map(rows, user_lat=None, user_lon=None):
 
     return product_map
 
-def search_product(search_text, user_lat=21.0285, user_lon=105.8542):
-    search_text = (search_text or "").strip()  # Nếu None → "" và loại khoảng trắng
-
-    # 1. Nếu search_text rỗng → trả toàn bộ dữ liệu
+def search_product(search_text, location_id, user_lat=21.0285, user_lon=105.8542):
+    """
+    Tìm kiếm sản phẩm với khả năng sửa lỗi chính tả bằng Gemini
+    Bắt buộc phải có cả search_text và location_id
+    """
+    # 1. Kiểm tra bắt buộc có search_text
+    search_text = (search_text or "").strip()
     if not search_text:
-        rows = fetch_full_data()
-        product_map = build_product_map(rows, user_lat, user_lon)
-        return list(product_map.values())
-
-    # 2. Tìm DB bằng search_text gốc
-    rows = fetch_rows_by_search(search_text)
+        return []
+    
+    # 2. Tìm DB bằng search_text và location_id
+    rows = fetch_rows_by_search_and_location(search_text=search_text, location_id=location_id)
     product_map = build_product_map(rows, user_lat, user_lon)
     results = list(product_map.values())
     
@@ -90,10 +91,10 @@ def search_product(search_text, user_lat=21.0285, user_lon=105.8542):
     
     # 3. Nếu rỗng → Gemini fix query
     fixed_query = groq_fix_query(search_text)
-    print(f"[DEBUG] Fixed query after Gemini: {fixed_query}")
+    print(f"[DEBUG] Fixed query after Groq: {fixed_query}")
     
-    # 4. Tìm lại DB bằng fixed_query
-    rows = fetch_rows_by_search(fixed_query)
+    # 4. Tìm lại DB bằng fixed_query với location_id
+    rows = fetch_rows_by_search_and_location(search_text=fixed_query, location_id=location_id)
     product_map = build_product_map(rows, user_lat, user_lon)
     results = list(product_map.values())
     

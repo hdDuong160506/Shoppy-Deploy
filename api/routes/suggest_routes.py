@@ -71,6 +71,9 @@ def post_suggest_products():
             products_data = fetch_random_products(20)
             print(f"🔍 [DEBUG] Số sản phẩm random: {len(products_data)}")
 
+            # QUAN TRỌNG: ĐẶT location_id = None TRONG SESSION
+            session["location_id"] = None
+
             # Format dữ liệu trả về
             items = []
             for row in products_data:
@@ -103,6 +106,9 @@ def post_suggest_products():
         # Có location, lấy sản phẩm theo location
         location_id = target_location.get("location_id")
         result_location_name = target_location.get("location_name")
+
+        # Gán location_id vào session
+        session["location_id"] = location_id
 
         # Lấy sản phẩm theo location
         products_data = fetch_products_by_location(location_id, limit)

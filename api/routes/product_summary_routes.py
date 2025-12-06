@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from database.fetch_data import fetch_data_by_product_store_id
 from flask import session
+from utils.haversine_function import haversine_function
 import math
 
 # 1. Khởi tạo Blueprint
@@ -54,6 +55,15 @@ def get_product_summary():
             if not store_id: 
                 continue
 
+            user_lat = session.get("user_lat")
+            user_lon = session.get("user_long")
+
+            distance_km = None
+            if user_lat is not None and user_lon is not None and row.get("store_lat") and row.get("store_long"):
+                distance_km = haversine_function(user_lat, user_lon, row["store_lat"], row["store_long"])
+
+            
+
             # Nếu store này chưa có trong map, tạo mới
             if store_id not in stores_map:
                 stores_map[store_id] = {
@@ -62,6 +72,7 @@ def get_product_summary():
                     "store_address": row.get("store_address"),
                     "store_lat": row.get("store_lat"),
                     "store_long": row.get("store_long"),
+                    "store_distance_km": distance_km,
                     # Các trường giá và rating của store
                     "ps_min_price_store": row.get("ps_min_price_store"),
                     "ps_max_price_store": row.get("ps_max_price_store"),
@@ -97,55 +108,3 @@ def get_product_summary():
             "status": "error", 
             "message": "Lỗi server nội bộ"
         }), 500
-
-def haversine(lat1, lon1, lat2, lon2):
-    """
-    Tính khoảng cách giữa 2 điểm (lat1, lon1) và (lat2, lon2) theo km
-    """
-    R = 6371  # Bán kính Trái Đất (km)
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-    delta_phi = math.radians(lat2 - lat1)
-    delta_lambda = math.radians(lon2 - lon1)
-
-    a = math.sin(delta_phi / 2) ** 2 + \
-        math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-    distance = R * c
-    return distance
-
-@product_summary_bp.route('/api/product_summary_dis', methods=['GET'])
-def get_distance():
-    """
-    Tính khoảng cách từ người dùng tới 1 store dựa vào store_id
-    Tham số GET: ?store_id=...
-    """
-    try:
-        store_id = request.args.get("store_id")
-        if not store_id:
-            return jsonify({"status": "error", "message": "Thiếu tham số store_id"}), 400
-
-        # Lấy thông tin toạ độ store
-        store = fetch_store_lat_long(store_id)
-        if not store:
-            return jsonify({"status": "error", "message": "Store không tồn tại"}), 404
-
-        # Lấy toạ độ người dùng từ session
-        user_lat = session.get("user_lat")
-        user_long = session.get("user_long")
-        if user_lat is None or user_long is None:
-            return jsonify({"status": "error", "message": "Chưa xác định toạ độ người dùng"}), 400
-
-        # Tính khoảng cách
-        distance_km = haversine(float(user_lat), float(user_long),
-                                float(store["store_lat"]), float(store["store_long"]))
-
-        return jsonify({
-            "store_id": store_id,
-            "distance_km": round(distance_km, 2)  # làm tròn 2 chữ số
-        })
-
-    except Exception as e:
-        print("❌ Error in get_distance:", str(e))
-        return jsonify({"status": "error", "message": "Lỗi server nội bộ"}), 500

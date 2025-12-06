@@ -341,7 +341,14 @@ async function performRouting(start, end, profile) {
 
       // Nếu profile là xe đạp -> chia cho 120, còn lại (ô tô, đi bộ...) chia cho 60
       const divisor = (profile === 'cycling-regular') ? 120 : 60; // divisor (mẫu số)
-      const minutesScaled = timeSec / divisor; // scaled minutes (phút đã điều chỉnh)
+
+      let Depreciation = 1;
+      if(profile === 'driving-car') Depreciation = 1.8;
+      else if (profile === 'cycling-regular') Depreciation = 2.4;
+      else Depreciation = 1;
+
+
+      const minutesScaled = Depreciation * timeSec / divisor; // scaled minutes (phút đã điều chỉnh)
 
       // Chuyển đổi hiển thị: phút -> giờ -> ngày
       let timeDisplay;
@@ -463,22 +470,57 @@ DOM.profileSelect.addEventListener('change', () => { if (DOM.realtimeToggle.chec
 // 7. LOGIC CỬA HÀNG
 // ============================================================
 async function loadStores() {
+  // CẤU HÌNH CACHE
+  const CACHE_KEY = 'MAP_STORES_DATA';
+  const CACHE_DURATION = 60 * 60 * 1000; // 1 tiếng (ms)
+
   try {
-    let stores = []; // Khai báo biến stores ở ngoài để dùng chung
+    let stores = []; 
+    let shouldFetch = true; // Mặc định là cần fetch mới
+
     console.log("🚀 Bắt đầu tải danh sách cửa hàng...");
-    if (window.allStores && window.allStores.length > 0) {
-      console.log("♻️ Dùng lại dữ liệu đã có trong window.allStores");
-      stores = window.allStores;
+
+    // --- KIỂM TRA LOCALSTORAGE & TIMESTAMP ---
+    const cachedRaw = localStorage.getItem(CACHE_KEY);
+
+    if (cachedRaw) {
+      try {
+        const cachedObj = JSON.parse(cachedRaw);
+        const now = Date.now();
+        const age = now - cachedObj.timestamp;
+
+        // Kiểm tra xem cache còn hạn không
+        if (age < CACHE_DURATION) {
+          console.log(`♻️ Dùng dữ liệu từ LocalStorage (Cache còn hạn ${(CACHE_DURATION - age)/60000} phút).`);
+          stores = cachedObj.data;
+          shouldFetch = false; // Không cần fetch nữa
+        } else {
+          console.log("⚠️ Cache đã hết hạn (quá 1 tiếng). Tiến hành tải lại.");
+        }
+      } catch (err) {
+        console.warn("Lỗi đọc cache, sẽ tải mới:", err);
+      }
     }
-    else {
-      // 1. Gọi API
+
+    // --- GỌI API NẾU CẦN ---
+    if (shouldFetch) {
+      console.log("globe Đang gọi API lấy dữ liệu mới...");
       const res = await fetch('/map/api/stores');
       if (!res.ok) throw new Error('API Error');
+      
       stores = await res.json();
 
+      // Lưu vào LocalStorage kèm Timestamp
+      const cacheData = {
+        timestamp: Date.now(),
+        data: stores
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+      console.log("💾 Đã lưu dữ liệu mới vào LocalStorage.");
     }
 
-    // 2. Kiểm tra LocalStorage
+
+    // Kiểm tra LocalStorage (Target Store - Đích đến)
     const targetData = localStorage.getItem('TARGET_STORE');
     let targetStoreId = null;
 

@@ -12,52 +12,14 @@ search_bp = Blueprint("search", __name__)
 @search_bp.route("/api/products")
 def api_products():
     search_text = request.args.get("search", "")
-    distance_filter = request.args.get("distance", "")
-    price_filter = request.args.get("price", "")
-
     user_lat = session.get("user_lat")
     user_lon = session.get("user_long")
 
-    results = search_product(search_text, user_lat, user_lon)
+    # Lấy location_id từ session
+    location_id = session.get("location_id")
 
-    # Lọc khoảng cách
-    if distance_filter:
-        max_dist = float(distance_filter)
-        for r in results:
-            r["store"] = [
-                s
-                for s in r["store"]
-                if s.get("distance_km") is not None and s["distance_km"] <= max_dist
-            ]
-        results = [r for r in results if r["store"]]
-
-    if price_filter:
-        ranges = {
-            "1": (0, 50000),
-            "2": (50000, 100000),
-            "3": (100000, 200000),
-            "4": (200000, 500000),
-            "5": (500000, 1000000),
-            "6": (1000000, float("inf")),
-        }
-        if price_filter in ranges:
-            low, high = ranges[price_filter]
-            for r in results:
-                r["store"] = [
-                    s
-                    for s in r["store"]
-                    if s.get("ps_min_price_store") is not None
-                    and s.get("ps_max_price_store") is not None
-                    and (
-                        (low <= s["ps_min_price_store"] <= high)
-                        or (low <= s["ps_max_price_store"] <= high)
-                        or (
-                            s["ps_min_price_store"] <= low
-                            and s["ps_max_price_store"] >= high
-                        )
-                    )
-                ]
-            results = [r for r in results if r["store"]]
+    # Gọi hàm tìm kiếm sản phẩm
+    results = search_product(search_text, location_id, user_lat, user_lon)
 
     # Format dữ liệu cho JavaScript
     products = []
@@ -128,8 +90,11 @@ def handle_image_search_api():
             user_lat = session.get("user_lat")
             user_lon = session.get("user_long")
 
+            # Lấy location_id từ session
+            location_id = session.get("location_id")
+
             # Sử dụng hàm search_product hiện có để tìm kiếm
-            search_results = search_product(recognized_product, user_lat, user_lon)
+            search_results = search_product(recognized_product, location_id, user_lat, user_lon)
 
             # Format kết quả giống như API thông thường
             formatted_products = []
