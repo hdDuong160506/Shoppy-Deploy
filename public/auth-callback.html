@@ -29,40 +29,28 @@
     <h3 id="status">🔄 Đang xác thực thông tin...</h3>
     <p id="sub-status">Vui lòng không tắt trình duyệt.</p>
 
+    <script src="js/supabase-init.js"></script>
+    <script src="js/redirect-handler.js"></script>
+
     <script>
         const statusEl = document.getElementById('status');
         const subStatusEl = document.getElementById('sub-status');
 
-        // Lấy URL cần chuyển hướng (Ưu tiên: URL đã lưu, Fallback: Trang chủ)
-        const redirectUrl = localStorage.getItem('redirect_after_login') || 'index.html';
-
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log("Event:", event);
+        // Cập nhật UI cho trang callback
+        supabase.auth.onAuthStateChange((event, session) => {
+            console.log('🔔 [Callback] Auth event:', event);
 
             if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-
-                // Xóa URL đã lưu sau khi sử dụng
-                localStorage.removeItem('redirect_after_login');
-
-                statusEl.textContent = "✅ Đăng nhập/Xác thực thành công!";
-                statusEl.className = "success";
-                subStatusEl.textContent = "Đang chuyển hướng đến trang cũ...";
-
-                if (session && session.user) {
-                    const name = session.user.user_metadata.name || session.user.email.split('@')[0];
-                    localStorage.setItem('userName', name);
+                if (statusEl && subStatusEl) {
+                    statusEl.textContent = "✅ Đăng nhập thành công!";
+                    statusEl.className = "success";
+                    subStatusEl.textContent = "Đang quay lại trang trước...";
                 }
-
-                // 🎯 CHUYỂN HƯỚNG VỀ URL ĐÃ LƯU
-                setTimeout(() => {
-                    // Thử đóng tab
-                    window.close();
-                    // Chuyển về URL đã lưu (sẽ chạy nếu window.close() không hoạt động)
-                    window.location.href = redirectUrl;
-                }, 1000); // Đợi 1 giây để người dùng thấy thông báo
-
+                // redirect-handler.js sẽ tự động xử lý redirect
             } else if (event === 'PASSWORD_RECOVERY') {
-                statusEl.textContent = "🔐 Đang chuyển đến trang đặt lại mật khẩu...";
+                if (statusEl) {
+                    statusEl.textContent = "🔐 Đang chuyển đến trang đặt lại mật khẩu...";
+                }
                 window.location.href = 'reset-password.html';
             }
         });
