@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const profileForm = document.getElementById('profile-form');
     const profileMessage = document.getElementById('profile-message');
     const nameInput = document.getElementById('profile-name');
+    const changePassBtn = document.getElementById('change-password-btn');
     
     loadUserProfile(user);
 
@@ -103,31 +104,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ============================================================
-    // 3. XỬ LÝ ĐỔI MẬT KHẨU (SỬ DỤNG CUSTOM MODAL)
+    // 3. XỬ LÝ ĐỔI MẬT KHẨU (ĐÃ SỬA: CHẶN GOOGLE LOGIN)
     // ============================================================
-    document.getElementById('change-password-btn').addEventListener('click', async () => {
+    changePassBtn.addEventListener('click', async () => {
         
-        // DÙNG HÀM CUSTOM MỚI THAY CHO confirm()
-        const confirmChange = await showCustomConfirm("Bạn có chắc muốn đổi mật khẩu? Chúng tôi sẽ gửi một liên kết đặt lại mật khẩu đến email của bạn.");
-        
-        if (!confirmChange) return;
-
-        profileMessage.textContent = "⏳ Đang gửi email đặt lại mật khẩu...";
+        // Reset thông báo cũ
+        profileMessage.textContent = "";
         profileMessage.className = "profile-message";
-        document.getElementById('change-password-btn').disabled = true;
+        changePassBtn.disabled = true;
 
-        const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-            redirectTo: window.location.origin + '/reset-password.html' 
-        });
+        try {
+            // --- BƯỚC 1: KIỂM TRA LOẠI TÀI KHOẢN (GỌI API PYTHON) ---
+            const checkRes = await fetch('/api/user/check_email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: user.email })
+            });
+            
+            const checkData = await checkRes.json();
+            
+            // Nếu là Google -> CHẶN
+            if (checkData.exists && checkData.provider === 'google') {
+                profileMessage.innerHTML = "⛔ Tài khoản này đăng nhập bằng <b>Google</b>.<br>Bạn không cần đổi mật khẩu.";
+                profileMessage.className = "profile-message error";
+                changePassBtn.disabled = false;
+                return; // Dừng lại ngay
+            }
 
-        if (error) {
-            profileMessage.textContent = "❌ Lỗi gửi email: " + error.message;
+            // --- BƯỚC 2: NẾU LÀ EMAIL THƯỜNG -> HIỆN POPUP XÁC NHẬN ---
+            // Chỉ hiện popup khi đã chắc chắn là user thường
+            const confirmChange = await showCustomConfirm("Bạn có chắc muốn đổi mật khẩu? Chúng tôi sẽ gửi link đến email của bạn.");
+            
+            if (!confirmChange) {
+                changePassBtn.disabled = false;
+                return;
+            }
+
+            profileMessage.textContent = "⏳ Đang gửi email đặt lại mật khẩu...";
+            profileMessage.className = "profile-message";
+
+            const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+                redirectTo: window.location.origin + '/reset-password.html' 
+            });
+
+            if (error) {
+                profileMessage.textContent = "❌ Lỗi gửi email: " + error.message;
+                profileMessage.className = "profile-message error";
+            } else {
+                profileMessage.textContent = "✅ Đã gửi link! Vui lòng kiểm tra hộp thư để đổi mật khẩu.";
+                profileMessage.className = "profile-message success";
+            }
+
+        } catch (err) {
+            console.error("Lỗi check user:", err);
+            profileMessage.textContent = "❌ Lỗi hệ thống khi kiểm tra tài khoản.";
             profileMessage.className = "profile-message error";
-        } else {
-            profileMessage.textContent = "✅ Đã gửi link! Vui lòng kiểm tra hộp thư để đổi mật khẩu.";
-            profileMessage.className = "profile-message success";
+        } finally {
+            changePassBtn.disabled = false;
         }
-        document.getElementById('change-password-btn').disabled = false;
     });
 
     // ============================================================
@@ -136,7 +170,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('logout-link').addEventListener('click', async (e) => {
         e.preventDefault();
         
-        // DÙNG CUSTOM MODAL THAY CHO confirm()
         const confirmLogout = await showCustomConfirm("Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?"); 
         if (!confirmLogout) return;
         
@@ -153,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // --- HÀM LOAD DỮ LIỆU VÀO FORM ---
-async function loadUserProfile(user) { // Thêm async để dùng await
+async function loadUserProfile(user) { 
     const defaultName = user.email.split('@')[0];
     let displayName = defaultName;
     
@@ -167,13 +200,12 @@ async function loadUserProfile(user) { // Thêm async để dùng await
     if (profile && profile.name) {
         displayName = profile.name;
     } 
-    // 2. Nếu không có trong profiles, lấy từ user_metadata (tên lúc đăng ký/Google)
+    // 2. Nếu không có trong profiles, lấy từ user_metadata
     else if (user.user_metadata.name) {
         displayName = user.user_metadata.name;
     }
 
     document.getElementById('profile-email').value = user.email;
-    // Gán displayName đã ưu tiên
     document.getElementById('profile-name').value = displayName; 
 
     const createdAt = new Date(user.created_at);
