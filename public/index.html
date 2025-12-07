@@ -148,16 +148,11 @@
 							<div class="location-dropdown-menu" id="location-dropdown-menu">
 								<div class="location-dropdown-header">📍 Chọn địa điểm</div>
 								<div class="location-list" id="location-list">
-									<div class="location-item" data-location="Hà Nội">📍 Hà Nội</div>
-									<div class="location-item" data-location="TP. Hồ Chí Minh">📍 TP. Hồ Chí Minh</div>
-									<div class="location-item" data-location="Đà Nẵng">📍 Đà Nẵng</div>
-									<div class="location-item" data-location="Hải Phòng">📍 Hải Phòng</div>
-									<div class="location-item" data-location="Cần Thơ">📍 Cần Thơ</div>
-									<div class="location-item" data-location="Biên Hòa">📍 Biên Hòa</div>
-									<div class="location-item" data-location="Nha Trang">📍 Nha Trang</div>
-									<div class="location-item" data-location="Huế">📍 Huế</div>
-									<div class="location-item" data-location="Vũng Tàu">📍 Vũng Tàu</div>
-									<div class="location-item" data-location="Buôn Ma Thuột">📍 Buôn Ma Thuột</div>
+									<!-- Locations sẽ được load động từ API -->
+									<div class="location-loading"
+										style="padding: 20px; text-align: center; color: #888;">
+										Đang tải danh sách địa điểm...
+									</div>
 								</div>
 							</div>
 						</div>
@@ -174,8 +169,7 @@
 					</div>
 
 					<section class="suggested-products-section" style="padding:20px 0;">
-						<h2 id="suggested-products-title" 
-							class="suggested-title"
+						<h2 id="suggested-products-title" class="suggested-title"
 							data-default-text="🛍️ Sản phẩm gợi ý cho bạn"
 							style="text-align:center; margin-bottom:30px; color:#333;">
 							🛍️ Sản phẩm gợi ý cho bạn

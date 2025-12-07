@@ -122,8 +122,8 @@ function scrollToSearchResults() { // HÀM CUỘN TRANG MỚI
 	if (resultsTitle) {
 		// Cuộn đến vị trí của tiêu đề kết quả
 		resultsTitle.scrollIntoView({
-			behavior: 'smooth', // Hiệu ứng cuộn mượt
-			block: 'center'      // Cuộn đến đầu của phần tử
+			behavior : 'smooth', // Hiệu ứng cuộn mượt
+			block : 'center'	 // Cuộn đến đầu của phần tử
 		});
 	}
 }
@@ -148,7 +148,7 @@ function submitSearch(query) {
 
 	const searchForm = $('#search_form');
 	// Trigger submit để tải sản phẩm
-	searchForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+	searchForm.dispatchEvent(new Event('submit', {bubbles : true, cancelable : true}));
 
 	// THÊM: Cuộn xuống kết quả
 	scrollToSearchResults();
@@ -298,14 +298,14 @@ async function loadSuggestedProducts(locationName = null, useGps = false) {
 	try {
 		// Gọi API với param use_gps
 		const res = await fetch('/api/suggest_products', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
+			method : 'POST',
+			headers : {
+				'Content-Type' : 'application/json'
 			},
-			body: JSON.stringify({
-				location_name: locationName,
-				use_gps: useGps,
-				limit: 100
+			body : JSON.stringify({
+				location_name : locationName,
+				use_gps : useGps,
+				limit : 100
 			})
 		});
 
@@ -330,25 +330,69 @@ async function loadSuggestedProducts(locationName = null, useGps = false) {
 	}
 }
 
-function renderLocationList() {
-	const listWrap = document.getElementById("location-list");
-	listWrap.innerHTML =
+let LOCATIONS = [];
 
-		LOCATIONS.forEach(loc => {
-			const div = document.createElement("div");
-			div.className = "location-item";
-			div.dataset.location = loc;
-			div.innerHTML = `📍 ${loc}`;
-			div.addEventListener("click", () => {
-				document.getElementById("search_address_input").value = loc;
-				document.getElementById("location-dropdown-menu").style.display = "none";
-			});
-			listWrap.appendChild(div);
-		});
+// Hàm fetch locations từ API
+async function fetchLocations() {
+	try {
+		const response = await fetch('/api/locations');
+		const data = await response.json();
+
+		if (data.status === 'success' && data.locations) {
+			LOCATIONS = data.locations;
+			renderLocationList();
+		} else {
+			console.error('❌ Không thể lấy danh sách locations:', data);
+			renderLocationError();
+		}
+	} catch (error) {
+		console.error('❌ Lỗi khi fetch locations:', error);
+		renderLocationError();
+	}
 }
 
-document.addEventListener("DOMContentLoaded", renderLocationList);
+// Render danh sách locations vào dropdown
+function renderLocationList() {
+	const listWrap = $('#location-list');
+	if (!listWrap) return;
 
+	listWrap.innerHTML = ''; // Xóa loading message
+
+	if (LOCATIONS.length === 0) {
+		listWrap.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">Không có địa điểm nào</div>';
+		return;
+	}
+
+	LOCATIONS.forEach(loc => {
+		const div = document.createElement('div');
+		div.className = 'location-item';
+		div.dataset.location = loc;
+		div.innerHTML = `📍 ${loc}`;
+
+		div.addEventListener('click', () => {
+			const addressInput = $('#search_address_input');
+			const dropdownMenu = $('#location-dropdown-menu');
+
+			if (addressInput) addressInput.value = loc;
+			if (dropdownMenu) dropdownMenu.classList.remove('active');
+
+			// Lưu vào localStorage và load sản phẩm gợi ý
+			localStorage.setItem('suggest_location_name', loc);
+			localStorage.removeItem('suggest_use_gps');
+			loadSuggestedProducts(loc);
+		});
+
+		listWrap.appendChild(div);
+	});
+}
+
+// Hiển thị lỗi khi không load được locations
+function renderLocationError() {
+	const listWrap = $('#location-list');
+	if (!listWrap) return;
+
+	listWrap.innerHTML = '<div style="padding: 20px; text-align: center; color: #e74c3c;">❌ Không thể tải danh sách địa điểm</div>';
+}
 // Render sản phẩm gợi ý
 function renderSuggestedProducts(products) {
 	const wrap = $('#suggested-products-list');
@@ -475,7 +519,23 @@ function resetToSuggestedProducts() {
 	}
 
 	// Load lại sản phẩm gợi ý
-	loadSuggestedProducts();
+	const savedLocationName = localStorage.getItem('suggest_location_name');
+	const savedUseGps = localStorage.getItem('suggest_use_gps');
+
+	if (savedUseGps === 'true') {
+		// Nếu trước đó dùng GPS, load lại theo GPS
+		loadSuggestedProducts(null, true);
+	} else if (savedLocationName) {
+		// Nếu trước đó nhập địa chỉ, khôi phục và load lại
+		const addressInput = $('#search_address_input');
+		if (addressInput) {
+			addressInput.value = savedLocationName;
+		}
+		loadSuggestedProducts(savedLocationName);
+	} else {
+		// Mặc định: load sản phẩm gợi ý thông thường
+		loadSuggestedProducts();
+	}
 }
 
 // ======================================================================
@@ -545,7 +605,7 @@ if (document.getElementById('search_form')) {
 			suggestions[highlightedIndex].classList.add('highlighted');
 
 			// Focus vào item được chọn (cuộn nếu cần)
-			suggestions[highlightedIndex].scrollIntoView({ block: "nearest" });
+			suggestions[highlightedIndex].scrollIntoView({block : "nearest"});
 
 		} else if (e.key === 'ArrowUp') {
 			e.preventDefault();
@@ -554,7 +614,7 @@ if (document.getElementById('search_form')) {
 			suggestions[highlightedIndex].classList.add('highlighted');
 
 			// Focus vào item được chọn (cuộn nếu cần)
-			suggestions[highlightedIndex].scrollIntoView({ block: "nearest" });
+			suggestions[highlightedIndex].scrollIntoView({block : "nearest"});
 		} else if (e.key === 'Enter') {
 			e.preventDefault(); // Chặn form submit mặc định
 			const highlighted = suggestions[highlightedIndex];
@@ -564,7 +624,7 @@ if (document.getElementById('search_form')) {
 				highlighted.click(); // Kích hoạt hành động của item được chọn
 			} else {
 				// Nếu không có item nào được chọn, submit form như bình thường
-				document.getElementById('search_form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+				document.getElementById('search_form').dispatchEvent(new Event('submit', {bubbles : true, cancelable : true}));
 			}
 		} else if (e.key === 'Escape') {
 			hideSuggestions();
@@ -572,7 +632,7 @@ if (document.getElementById('search_form')) {
 	});
 
 	// Ẩn suggestions khi click ra ngoài
-	document.addEventListener('click', function (event) {
+	document.addEventListener('click', function(event) {
 		const form = $('#search_form');
 		const suggestions = $('#search_suggestions');
 		if (form && suggestions && !form.contains(event.target) && !suggestions.contains(event.target)) {
@@ -622,12 +682,12 @@ function startVoiceSearch() {
 	popup.style.display = "flex";
 
 	// Khi bắt đầu nghe
-	recognition.onstart = function () {
+	recognition.onstart = function() {
 		transcriptDisplay.textContent = "Đang nghe... Hãy nói gì đó!";
 	};
 
 	// Nhận kết quả
-	recognition.onresult = function (event) {
+	recognition.onresult = function(event) {
 		let finalTranscript = '';
 		let interimTranscript = '';
 
@@ -676,7 +736,7 @@ function startVoiceSearch() {
 	};
 
 	// Khi xảy ra lỗi micro / không nói
-	recognition.onerror = function (event) {
+	recognition.onerror = function(event) {
 		console.error("Lỗi nhận diện:", event.error);
 
 		let msg = "Lỗi: ";
@@ -695,7 +755,7 @@ function startVoiceSearch() {
 	};
 
 	// Khi kết thúc
-	recognition.onend = function () {
+	recognition.onend = function() {
 		currentRecognition = null;
 
 		if ($('#transcript_display').textContent === "Đang nghe...") {
@@ -966,12 +1026,12 @@ async function searchWithImage() {
 
 	try {
 		const response = await fetch('/api/search-by-image', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
+			method : 'POST',
+			headers : {
+				'Content-Type' : 'application/json'
 			},
-			body: JSON.stringify({
-				image: currentImageData
+			body : JSON.stringify({
+				image : currentImageData
 			})
 		});
 
@@ -1162,14 +1222,14 @@ async function fetchCartDetails() {
 
 	try {
 		const res = await fetch('/api/cart/details', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ cart: cartToFetch })
+			method : 'POST',
+			headers : {'Content-Type' : 'application/json'},
+			body : JSON.stringify({cart : cartToFetch})
 		});
 		if (res.ok) {
 			// Merge cache mới vào cache cũ
 			const newCache = await res.json();
-			CART_CACHE = { ...CART_CACHE, ...newCache };
+			CART_CACHE = {...CART_CACHE, ...newCache};
 			updateCartUI();
 		}
 	} catch (err) {
@@ -1198,7 +1258,7 @@ function updateCartUI() {
 		return;
 	}
 
-	Object.entries(cart).forEach(([key, qty]) => {
+	Object.entries(cart).forEach(([ key, qty ]) => {
 		const details = CART_CACHE[key];
 
 		if (details) {
@@ -1254,14 +1314,14 @@ function addToCart(productId, storeId) {
 }
 
 // Tăng/giảm số lượng - GIỮ NGUYÊN
-window.changeQty = function (key, delta) { // Export ra window để HTML gọi được
+window.changeQty = function(key, delta) { // Export ra window để HTML gọi được
 	cart[key] = (cart[key] || 0) + delta;
 	if (cart[key] <= 0) delete cart[key];
 	saveCart();
 }
 
-// Xóa khỏi giỏ - GIỮ NGUYÊN
-window.removeItem = function (key) { // Export ra window để HTML gọi được
+				   // Xóa khỏi giỏ - GIỮ NGUYÊN
+				   window.removeItem = function(key) { // Export ra window để HTML gọi được
 	if (confirm('Xóa sản phẩm này khỏi giỏ hàng?')) {
 		delete cart[key];
 		if (CART_CACHE[key]) delete CART_CACHE[key]; // Xóa khỏi cache
@@ -1279,7 +1339,7 @@ if ($('#checkout')) {
 	// 2. Cập nhật Event Listener VỚI LOGIC KIỂM TRA ĐĂNG NHẬP
 	$('#checkout').addEventListener('click', async () => {
 		// Lấy session hiện tại
-		const { data: { session } } = await supabase.auth.getSession();
+		const {data : {session}} = await supabase.auth.getSession();
 
 		if (!session || !session.user) {
 
@@ -1336,7 +1396,7 @@ async function updateAccountLink() {
 	const logoutLink = document.getElementById('logout-link');
 
 	// 1. Lấy thông tin User hiện tại
-	const { data: { session } } = await supabase.auth.getSession();
+	const {data : {session}} = await supabase.auth.getSession();
 
 	let finalName = null;
 
@@ -1344,11 +1404,11 @@ async function updateAccountLink() {
 		// --- [LOGIC MỚI: Ưu tiên lấy tên từ Database] ---
 
 		// Gọi Supabase lấy tên trong bảng profiles
-		const { data: profile, error } = await supabase
-			.from('profiles')
-			.select('name')
-			.eq('id', session.user.id)
-			.single();
+		const {data : profile, error} = await supabase
+											.from('profiles')
+											.select('name')
+											.eq('id', session.user.id)
+											.single();
 
 		if (profile && profile.name) {
 			// Nếu trong DB có tên -> Dùng tên DB (Tên cũ)
@@ -1410,7 +1470,7 @@ async function reverseGeocode(latitude, longitude) {
 		const country = address.country || '';
 
 		// Xây dựng chuỗi kết quả: City, Country
-		const result = [city, country].filter(Boolean).join(', ');
+		const result = [ city, country ].filter(Boolean).join(', ');
 
 		// Sử dụng tọa độ nếu không lấy được thông tin cơ bản
 		return result || `Tọa độ: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
@@ -1477,8 +1537,8 @@ function showCustomConfirm(message) {
 		};
 
 		// Gắn sự kiện (đảm bảo chỉ gắn một lần)
-		yesButton.addEventListener('click', handleYes, { once: true });
-		noButton.addEventListener('click', handleNo, { once: true });
+		yesButton.addEventListener('click', handleYes, {once : true});
+		noButton.addEventListener('click', handleNo, {once : true});
 
 		// Hàm gỡ bỏ listeners dự phòng
 		const removeListeners = () => {
@@ -1494,7 +1554,7 @@ function showCustomConfirm(message) {
 // ======================================================================
 
 // Khi trang load → tải toàn bộ sản phẩm + cập nhật giỏ hàng
-window.onload = async function () {
+window.onload = async function() {
 	// THÊM: Fetch chi tiết giỏ hàng ngay khi tải trang
 	await fetchCartDetails();
 	updateCartUI();
@@ -1503,7 +1563,7 @@ window.onload = async function () {
 	updateAccountLink();
 
 	// === 2. KIỂM TRA SESSION & CẬP NHẬT VỊ TRÍ LÊN DB ===
-	const { data: { session } } = await supabase.auth.getSession();
+	const {data : {session}} = await supabase.auth.getSession();
 
 	if (session && session.user) {
 		updateUserLocation(session.user.id);
@@ -1541,7 +1601,23 @@ window.onload = async function () {
 					localStorage.removeItem('suggest_use_gps');
 					// Load sản phẩm gợi ý theo tên địa điểm (vẫn là sản phẩm gợi ý)
 					loadSuggestedProducts(locationName);
+				} else {
+					// Nếu xóa hết text và ấn Enter -> Reset về mặc định
+					localStorage.removeItem('suggest_location_name');
+					localStorage.removeItem('suggest_use_gps');
+					loadSuggestedProducts();
 				}
+			}
+		});
+
+		// Lắng nghe sự kiện xóa text (input event)
+		addressInput.addEventListener('input', (e) => {
+			const locationName = e.target.value.trim();
+			if (!locationName) {
+				// Nếu người dùng xóa hết text -> Reset ngay lập tức
+				localStorage.removeItem('suggest_location_name');
+				localStorage.removeItem('suggest_use_gps');
+				loadSuggestedProducts();
 			}
 		});
 	}
@@ -1594,7 +1670,7 @@ window.onload = async function () {
 };
 
 // Hàm đăng xuất toàn cục (gắn vào window để html gọi được)
-window.handleLogout = async function () {
+window.handleLogout = async function() {
 	// SỬ DỤNG CUSTOM MODAL THAY CHO CONFIRM()
 	const confirmLogout = await showCustomConfirm("Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?");
 
@@ -1603,7 +1679,7 @@ window.handleLogout = async function () {
 	// Nếu người dùng đồng ý (confirmLogout là true)
 	try {
 		// 1. Gọi Supabase đăng xuất
-		const { error } = await supabase.auth.signOut();
+		const {error} = await supabase.auth.signOut();
 		if (error) throw error;
 
 		// 2. Xóa sạch LocalStorage
@@ -1626,17 +1702,17 @@ async function updateUserLocation(userId) {
 
 	navigator.geolocation.getCurrentPosition(
 		async (position) => {
-			const { latitude, longitude } = position.coords;
+			const {latitude, longitude} = position.coords;
 
 			// Gọi Supabase update
-			const { error } = await supabase
-				.from('profiles')
-				.update({
-					lat: latitude,
-					long: longitude,
-					updated_at: new Date()
-				})
-				.eq('id', userId);
+			const {error} = await supabase
+								.from('profiles')
+								.update({
+									lat : latitude,
+									long : longitude,
+									updated_at : new Date()
+								})
+								.eq('id', userId);
 
 			if (!error) {
 				console.log(`✅ Đã cập nhật vị trí lên DB: ${latitude}, ${longitude}`);
@@ -1654,32 +1730,20 @@ async function updateUserLocation(userId) {
 // ======================================================================
 
 // Khởi tạo location dropdown
-function initLocationDropdown() {
+async function initLocationDropdown() {
 	const dropdownBtn = $('#location-dropdown-btn');
 	const dropdownMenu = $('#location-dropdown-menu');
 	const addressInput = $('#search_address_input');
-	const locationItems = $$('.location-item');
 
 	if (!dropdownBtn || !dropdownMenu || !addressInput) return;
+
+	// Fetch locations từ API ngay khi khởi tạo
+	await fetchLocations();
 
 	// Toggle dropdown khi click vào nút
 	dropdownBtn.addEventListener('click', (e) => {
 		e.stopPropagation();
 		dropdownMenu.classList.toggle('active');
-	});
-
-	// Xử lý khi chọn một địa điểm
-	locationItems.forEach(item => {
-		item.addEventListener('click', () => {
-			const location = item.getAttribute('data-location');
-			addressInput.value = location;
-			dropdownMenu.classList.remove('active');
-
-			// Lưu vào localStorage và load sản phẩm gợi ý
-			localStorage.setItem('suggest_location_name', location);
-			localStorage.removeItem('suggest_use_gps');
-			loadSuggestedProducts(location);
-		});
 	});
 
 	// Đóng dropdown khi click ra ngoài
@@ -1709,18 +1773,18 @@ if (document.readyState === 'loading') {
 // ======================================================================
 
 (function() {
-    const accountLink = document.getElementById('account-link');
-    
-    if (accountLink) {
-        accountLink.addEventListener('click', function(e) {
-            // Kiểm tra session (bất đồng bộ)
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                if (!session) {
-                    // Chưa đăng nhập → Lưu URL hiện tại
-                    localStorage.setItem('redirect_after_login', window.location.href);
-                    console.log('💾 Saved URL:', window.location.href);
-                }
-            });
-        });
-    }
+const accountLink = document.getElementById('account-link');
+
+if (accountLink) {
+	accountLink.addEventListener('click', function(e) {
+		// Kiểm tra session (bất đồng bộ)
+		supabase.auth.getSession().then(({data : {session}}) => {
+			if (!session) {
+				// Chưa đăng nhập → Lưu URL hiện tại
+				localStorage.setItem('redirect_after_login', window.location.href);
+				console.log('💾 Saved URL:', window.location.href);
+			}
+		});
+	});
+}
 })();
