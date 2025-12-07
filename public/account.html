@@ -33,7 +33,10 @@
       <form id="register-form">
         <h1>Tạo tài khoản</h1>
         <input type="text" id="reg-name" placeholder="Họ Và Tên" required minlength="2" maxlength="100" />
-        <input type="email" id="reg-email" placeholder="Email" required />
+        
+        <input type="email" id="reg-email" placeholder="Email" required 
+               oninvalid="this.setCustomValidity('Vui lòng nhập đúng định dạng Email (ví dụ: abc@gmail.com)')"
+               oninput="this.setCustomValidity('')"/>
 
         <div class="input-group">
           <input type="password" id="reg-pwd" placeholder="Mật Khẩu" required />
@@ -72,7 +75,10 @@
           </button>
         </div>
         <span>hoặc sử dụng mật khẩu email của bạn</span>
-        <input type="email" id="login-email" placeholder="Email" required />
+        
+        <input type="email" id="login-email" placeholder="Email" required 
+               oninvalid="this.setCustomValidity('Vui lòng nhập đúng định dạng Email (ví dụ: abc@gmail.com)')"
+               oninput="this.setCustomValidity('')"/>
 
         <div class="input-group">
           <input type="password" id="login-pwd" placeholder="Mật Khẩu" required />
