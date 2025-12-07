@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     msg.innerHTML = `
                         <span style="color:green; font-weight:bold">✅ Đăng ký thành công!</span><br>
-                        Vui lòng kiểm tra Email để kích hoạt.
+                        Vui lòng kiểm tra Email (bao gồm cả thư rác) để kích hoạt.
                     `;
                     msg.className = "message success";
 
@@ -250,10 +250,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (error) {
-                    msg.textContent = "❌ Lỗi: " + error.message;
+                    let noiDungLoi = error.message;
+
+                    // 1. Bắt lỗi mật khẩu yếu (Lỗi bạn đang gặp)
+                    if (noiDungLoi.includes("Password should be at least")) {
+                        noiDungLoi = "Mật khẩu quá yếu! Cần ít nhất 8 ký tự, gồm: chữ Hoa, thường, số và ký tự đặc biệt (!@#).";
+                    }
+                    // 2. Bắt lỗi thao tác quá nhanh (Rate limit)
+                    else if (noiDungLoi.includes("Rate limit") || noiDungLoi.includes("Too many requests")) {
+                        noiDungLoi = "Bạn thao tác quá nhanh. Vui lòng đợi 60 giây rồi thử lại.";
+                    }
+                    // 3. Bắt lỗi email đã tồn tại (dự phòng)
+                    else if (noiDungLoi.includes("User already registered")) {
+                        noiDungLoi = "Email này đã có người đăng ký.";
+                    }
+
+                    // Hiển thị thông báo tiếng Việt
+                    msg.textContent = "❌ " + noiDungLoi;
                     msg.className = "message error";
                 } else {
-                    msg.textContent = "✅ Đã gửi link! Vui lòng kiểm tra hộp thư.";
+                    msg.textContent = "✅ Đã gửi link! Vui lòng kiểm tra hộp thư (bao gồm cả thư rác).";
                     msg.className = "message success";
                 }
 
