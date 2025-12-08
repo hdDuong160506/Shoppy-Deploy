@@ -1965,22 +1965,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ======================================================================
-// XỬ LÝ LƯU URL TRƯỚC KHI ĐĂNG NHẬP
+// XỬ LÝ LƯU URL TRƯỚC KHI CHUYỂN TRANG (QUAN TRỌNG)
 // ======================================================================
 
-(function() {
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Xử lý nút Tài Khoản trên Header
     const accountLink = document.getElementById('account-link');
-    
     if (accountLink) {
         accountLink.addEventListener('click', function(e) {
-            // Kiểm tra session (bất đồng bộ)
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                if (!session) {
-                    // Chưa đăng nhập → Lưu URL hiện tại
-                    localStorage.setItem('redirect_after_login', window.location.href);
-                    console.log('💾 Saved URL:', window.location.href);
-                }
-            });
+            // Lưu URL hiện tại ngay lập tức khi bấm
+            localStorage.setItem('redirect_after_login', window.location.href);
         });
     }
-})();
+
+    // 2. [FIX] Xử lý link "Đăng nhập" ở phần Đánh giá (Login Prompt)
+    // Vì link này nằm trong HTML tĩnh nên ta có thể bắt sự kiện ngay
+    const reviewLoginLink = document.querySelector('#login-prompt a');
+    if (reviewLoginLink) {
+        reviewLoginLink.addEventListener('click', function(e) {
+            // Lưu URL hiện tại: product-detail.html?product_id=...
+            localStorage.setItem('redirect_after_login', window.location.href);
+            console.log('💾 Đã lưu vị trí để quay lại:', window.location.href);
+        });
+    }
+});
