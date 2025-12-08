@@ -342,11 +342,10 @@ async function performRouting(start, end, profile) {
       // Nếu profile là xe đạp -> chia cho 120, còn lại (ô tô, đi bộ...) chia cho 60
       const divisor = (profile === 'cycling-regular') ? 120 : 60; // divisor (mẫu số)
 
+      // Khấu hao nếu chỉ đường trong 1 thành phố (giao thông phức tạp)
       let Depreciation = 1;
-      if(profile === 'driving-car') Depreciation = 1.8;
-      else if (profile === 'cycling-regular') Depreciation = 2.4;
-      else Depreciation = 1;
-
+      if(profile === 'driving-car' && distanceKm < 50) Depreciation = 3.0; // Chỉnh vận tốc từ 9.6 -> 15 km/h
+      else if (profile === 'cycling-regular' && distanceKm < 50) Depreciation = 2.4; // Chỉnh vận tốc xuống khoảng 15 km/h
 
       const minutesScaled = Depreciation * timeSec / divisor; // scaled minutes (phút đã điều chỉnh)
 

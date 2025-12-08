@@ -169,7 +169,7 @@ async function handlePlaceOrder() {
         
         // Xóa giỏ hàng & về trang chủ
         localStorage.removeItem('cart_v1');
-        window.location.href = "index.html"; 
+        window.location.href = "order_tracking.html"; 
 
     } catch (err) {
         console.error("Lỗi đặt hàng:", err);

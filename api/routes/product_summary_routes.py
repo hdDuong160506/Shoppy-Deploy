@@ -57,12 +57,12 @@ def get_product_summary():
 
             user_lat = session.get("user_lat")
             user_lon = session.get("user_long")
+            print(session.get("user_lat"))
+            print(session.get("user_long"))
 
             distance_km = None
             if user_lat is not None and user_lon is not None and row.get("store_lat") and row.get("store_long"):
                 distance_km = haversine_function(user_lat, user_lon, row["store_lat"], row["store_long"])
-
-            
 
             # Nếu store này chưa có trong map, tạo mới
             if store_id not in stores_map:

@@ -107,24 +107,28 @@ def fetch_rows_by_search_and_location(search_text: str = None, location_id: str 
     result = supabase.rpc("exec_sql", {"sql": query}).execute()
     return result.data
 
-def fetch_data_by_product_store_id(product_id: str, store_id: str = None):
+def fetch_data_by_product_store_id(product_id: str, store_id: str = None, location_id: str = None):
     """
-    Tìm kiếm chi tiết sản phẩm.
-    - Nếu có store_id: Lấy chi tiết sản phẩm tại cửa hàng đó (1 dòng).
-    - Nếu KHÔNG có store_id: Lấy chi tiết sản phẩm tại TẤT CẢ cửa hàng (n dòng).
+    Lấy chi tiết sản phẩm theo store, location hoặc tất cả.
     """
-    # 1. Bảo vệ đầu vào product_id (Bắt buộc)
     safe_product_id = sanitize_input(product_id)
-    
-    # 2. Xây dựng danh sách điều kiện
+
+    # Danh sách điều kiện
     conditions = [f"p.product_id = '{safe_product_id}'"]
 
-    # 3. Kiểm tra store_id có tồn tại không
+    # Nếu có store_id
     if store_id:
         safe_store_id = sanitize_input(store_id)
         conditions.append(f"s.store_id = '{safe_store_id}'")
 
-    # Nối các điều kiện bằng AND
+    # Nếu có location_id
+    if location_id:
+        if not isinstance(location_id, str):
+            location_id = str(location_id)
+        safe_location_id = sanitize_input(location_id)
+        conditions.append(f"l.location_id = '{safe_location_id}'")
+
+    # Xây dựng WHERE
     where_clause = "WHERE " + " AND ".join(conditions)
 
     query = f"""
@@ -164,7 +168,6 @@ def fetch_data_by_product_store_id(product_id: str, store_id: str = None):
             pi.image_id AS ps_image_id,
             pi.image_url AS ps_image_url,
             pi.type AS ps_type
-
         FROM product p
         LEFT JOIN location l ON p.location_id = l.location_id
         LEFT JOIN product_store ps ON ps.product_id = p.product_id
@@ -172,10 +175,8 @@ def fetch_data_by_product_store_id(product_id: str, store_id: str = None):
         LEFT JOIN product_images pi ON pi.ps_id = ps.ps_id
         {where_clause}
     """
-    
-    # Supabase RPC để thực thi truy vấn
+
     result = supabase.rpc("exec_sql", {"sql": query}).execute()
-    
     return result.data
 
 def fetch_full_data():

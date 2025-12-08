@@ -64,7 +64,7 @@ function renderSuggestions(products, query) {
         return;
     }
 
-    // 1. Thêm dòng "Tìm kiếm toàn bộ"
+    // 1. Thêm dòng "Tìm kiếm toàn bộ" - ✅ LUÔN REDIRECT VỀ INDEX
     const searchAllItem = document.createElement('div');
     searchAllItem.className = 'suggestion-item suggestion-search-all';
     searchAllItem.innerHTML = `
@@ -73,10 +73,19 @@ function renderSuggestions(products, query) {
         </svg>
         Tìm kiếm: <b>${query}</b>
     `;
-    searchAllItem.addEventListener('click', () => submitSearch(query));
+    
+    // ✅ REDIRECT VỀ INDEX
+    searchAllItem.addEventListener('click', () => {
+        hideSuggestions();
+        document.body.classList.add('page-fade-out');
+        setTimeout(() => {
+            window.location.href = `index.html?search=${encodeURIComponent(query)}`;
+        }, 500);
+    });
+    
     container.appendChild(searchAllItem);
 
-    // 2. Thêm các sản phẩm gợi ý
+    // 2. Thêm các sản phẩm gợi ý - VẪN ĐI ĐẾN PRODUCT-SUMMARY
     products.forEach(product => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
@@ -91,23 +100,31 @@ function renderSuggestions(products, query) {
         `;
 
         item.dataset.productId = product.product_id;
-        item.addEventListener('click', () => navigateToProductSummary(product.product_id));
+        item.addEventListener('click', () => {
+            hideSuggestions();
+            document.body.classList.add('page-fade-out');
+            setTimeout(() => {
+                window.location.href = `product-summary.html?product_id=${product.product_id}`;
+            }, 500);
+        });
         container.appendChild(item);
     });
 
     showSuggestions();
 }
 
+// ✅ HÀM SUBMIT SEARCH - LUÔN REDIRECT VỀ INDEX
 function submitSearch(query) {
     const searchInput = $('#search_input');
     if (searchInput) {
         searchInput.value = query;
-        document.body.classList.add('page-fade-out');
-        setTimeout(() => {
-            window.location.href = `index.html?search=${encodeURIComponent(query)}`;
-        }, 500);
     }
     hideSuggestions();
+    
+    document.body.classList.add('page-fade-out');
+    setTimeout(() => {
+        window.location.href = `index.html?search=${encodeURIComponent(query)}`;
+    }, 500);
 }
 
 function navigateToProductSummary(productId) {
@@ -798,6 +815,494 @@ async function submitReview() {
     }
 }
 // ======================================================================
+// 4.1. THÊM BIẾN CHO REVIEW FILTER & CRUD
+// ======================================================================
+let currentFilter = 'all';
+let currentUserId = null;
+let editingReviewId = null;
+let reviewsDataCache = []; // Cache toàn bộ reviews đã tải
+
+// ======================================================================
+// 4.2. HÀM FILTER REVIEWS
+// ======================================================================
+async function filterReviews(filterType) {
+    currentFilter = filterType;
+    
+    // Cập nhật UI nút filter
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Load lại reviews với filter mới
+    if (currentPsId) {
+        await loadReviews(currentPsId, true);
+    }
+}
+
+// ======================================================================
+// 4.3. CẬP NHẬT HÀM loadReviews để hỗ trợ filter và cache
+// ======================================================================
+async function loadReviews(psId, resetPage = false) {
+    if (!psId || !supabaseClient) return;
+
+    if (resetPage) {
+        currentReviewsPage = 0;
+        reviewsDataCache = [];
+    }
+
+    // Check Login UI
+    if (resetPage) {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const formContainer = $('#review-form-container');
+        const loginPrompt = $('#login-prompt');
+
+        if (formContainer && loginPrompt) {
+            if (session) {
+                formContainer.style.display = 'block';
+                loginPrompt.style.display = 'none';
+                currentUserId = session.user.id;
+            } else {
+                formContainer.style.display = 'none';
+                loginPrompt.style.display = 'block';
+                currentUserId = null;
+            }
+        }
+    }
+
+    const listEl = $('#reviews-list');
+    
+    if (resetPage && listEl) {
+        listEl.innerHTML = '<p style="color:#999; padding:10px">Đang tải đánh giá...</p>';
+    }
+
+    // Đếm tổng số reviews (không bao gồm đã xóa)
+    if (resetPage) {
+        const { count, error: countError } = await supabaseClient
+            .from('reviews')
+            .select('*', { count: 'exact', head: true })
+            .eq('ps_id', psId)
+            .eq('is_deleted', false);
+
+        if (!countError && count !== null) {
+            totalReviewsCount = count;
+            
+            if (count > 0) {
+                const { data: ratingData } = await supabaseClient
+                    .from('reviews')
+                    .select('rating')
+                    .eq('ps_id', psId)
+                    .eq('is_deleted', false);
+                
+                if (ratingData && ratingData.length > 0) {
+                    const sumRating = ratingData.reduce((acc, curr) => acc + (curr.rating || 0), 0);
+                    const avgRating = sumRating / ratingData.length;
+                    updateReviewHeader(avgRating, count);
+                }
+            } else {
+                updateReviewHeader(0, 0);
+            }
+        } else {
+            totalReviewsCount = 0;
+            updateReviewHeader(0, 0);
+        }
+    }
+
+    // Load reviews với filter
+    const from = currentReviewsPage * REVIEWS_PER_PAGE;
+    const to = from + REVIEWS_PER_PAGE - 1;
+
+    let query = supabaseClient
+        .from('reviews')
+        .select('*')
+        .eq('ps_id', psId)
+        .eq('is_deleted', false);
+
+    // Áp dụng filter
+    switch (currentFilter) {
+        case 'newest':
+            query = query.order('created_at', { ascending: false });
+            break;
+        case 'oldest':
+            query = query.order('created_at', { ascending: true });
+            break;
+        case 'highest':
+            query = query.order('rating', { ascending: false });
+            break;
+        case 'lowest':
+            query = query.order('rating', { ascending: true });
+            break;
+        default: // 'all'
+            query = query.order('created_at', { ascending: false });
+    }
+
+    const { data: reviews, error } = await query.range(from, to);
+
+    if (error) {
+        console.error("Lỗi tải review:", error);
+        if (resetPage && listEl) {
+            listEl.innerHTML = '<p style="color:red">Không thể tải đánh giá.</p>';
+        }
+        return;
+    }
+
+    // Cache reviews
+    if (resetPage) {
+        reviewsDataCache = reviews;
+    } else {
+        reviewsDataCache = [...reviewsDataCache, ...reviews];
+    }
+
+    hasMoreReviews = reviews && reviews.length === REVIEWS_PER_PAGE;
+
+    if (!listEl) return;
+
+    if (resetPage) {
+        listEl.innerHTML = '';
+    }
+
+    const oldLoadMoreBtn = document.getElementById('load-more-reviews-btn');
+    if (oldLoadMoreBtn) {
+        oldLoadMoreBtn.remove();
+    }
+
+    if (!reviews || reviews.length === 0) {
+        if (resetPage) {
+            listEl.innerHTML = '<p style="color:#777; font-style: italic;">Chưa có đánh giá nào.</p>';
+        }
+        return;
+    }
+
+    // Lấy thông tin User
+    const userIds = [...new Set(reviews.map(r => r.user_id))];
+    const { data: profiles } = await supabaseClient
+        .from('profiles')
+        .select('id, name, avatar_url')
+        .in('id', userIds);
+
+    const profileMap = {};
+    if (profiles) profiles.forEach(p => profileMap[p.id] = p);
+
+    // Render reviews với nút chỉnh sửa/xóa
+    reviews.forEach(r => {
+        const user = profileMap[r.user_id] || {
+            name: 'Người dùng ẩn danh',
+            avatar_url: null
+        };
+        
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            starsHtml += `<span style="color:${i <= r.rating ? '#ffc107' : '#ddd'}">★</span>`;
+        }
+
+        const date = new Date(r.created_at).toLocaleDateString('vi-VN');
+        const avatarHtml = user.avatar_url ?
+            `<img src="${user.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` :
+            `<div style="width:100%;height:100%;background:#ccc;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;border-radius:50%">${user.name ? user.name.charAt(0).toUpperCase() : 'U'}</div>`;
+
+        const item = document.createElement('div');
+        item.className = 'review-item';
+        item.dataset.reviewId = r.review_id;
+        
+        // Kiểm tra nếu là review của user hiện tại
+        const isCurrentUserReview = currentUserId && r.user_id === currentUserId;
+        
+        let editDeleteButtons = '';
+        if (isCurrentUserReview) {
+            editDeleteButtons = `
+                <div class="review-actions" style="margin-top: 8px; display: flex; gap: 10px;">
+                    <button class="small-btn edit-review-btn" onclick="openEditReviewModal(${r.review_id})" 
+                            style="font-size: 12px; padding: 4px 8px;">
+                        ✏️ Chỉnh sửa
+                    </button>
+                    <button class="small-btn delete-review-btn" onclick="openConfirmDeleteModal(${r.review_id})" 
+                            style="font-size: 12px; padding: 4px 8px; color: #ff4444;">
+                        🗑️ Xóa
+                    </button>
+                </div>
+            `;
+        }
+
+        item.innerHTML = `
+            <div class="review-avatar" style="width:40px;height:40px;">${avatarHtml}</div>
+            <div class="review-content">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h4 style="margin:0;font-size:14px;">${user.name}</h4>
+                        <div class="stars" style="font-size:12px;">${starsHtml}</div>
+                    </div>
+                    <div class="date" style="font-size:12px;color:#999;">${date}</div>
+                </div>
+                <p style="margin:5px 0;font-size:14px;">${r.comment || ''}</p>
+                ${editDeleteButtons}
+            </div>
+        `;
+        listEl.appendChild(item);
+    });
+
+    // Thêm nút "Xem thêm"
+    if (hasMoreReviews) {
+        const loadedCount = (currentReviewsPage + 1) * REVIEWS_PER_PAGE;
+        const remainingCount = Math.max(0, totalReviewsCount - loadedCount);
+        
+        if (remainingCount > 0) {
+            const loadMoreBtn = document.createElement('button');
+            loadMoreBtn.id = 'load-more-reviews-btn';
+            loadMoreBtn.className = 'btn-load-more-reviews';
+            loadMoreBtn.innerHTML = `Xem thêm đánh giá`;
+            loadMoreBtn.style.cssText = `
+                width: 100%;
+                padding: 12px 20px;
+                margin-top: 15px;
+                background: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                color: #333;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            `;
+
+            loadMoreBtn.onmouseover = () => {
+                loadMoreBtn.style.background = '#e9ecef';
+                loadMoreBtn.style.borderColor = '#bbb';
+            };
+            loadMoreBtn.onmouseout = () => {
+                loadMoreBtn.style.background = '#f8f9fa';
+                loadMoreBtn.style.borderColor = '#ddd';
+            };
+
+            loadMoreBtn.onclick = async () => {
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.innerHTML = '⏳ Đang tải...';
+                
+                currentReviewsPage++;
+                await loadReviews(psId, false);
+            };
+
+            listEl.appendChild(loadMoreBtn);
+        }
+    }
+}
+
+// ======================================================================
+// 4.4. HÀM MỞ MODAL CHỈNH SỬA REVIEW
+// ======================================================================
+async function openEditReviewModal(reviewId) {
+    editingReviewId = reviewId;
+    
+    // Tìm review trong cache
+    const review = reviewsDataCache.find(r => r.review_id === reviewId);
+    if (!review) return;
+    
+    // Điền dữ liệu vào modal
+    document.querySelectorAll('#edit-rating-stars input').forEach(input => {
+        input.checked = parseInt(input.value) === review.rating;
+    });
+    
+    $('#edit-review-comment').value = review.comment || '';
+    
+    // Hiển thị modal
+    $('#edit-review-modal').style.display = 'flex';
+}
+
+// ======================================================================
+// 4.5. HÀM ĐÓNG MODAL CHỈNH SỬA
+// ======================================================================
+function closeEditReviewModal() {
+    $('#edit-review-modal').style.display = 'none';
+    editingReviewId = null;
+}
+
+// ======================================================================
+// 4.6. HÀM CẬP NHẬT REVIEW
+// ======================================================================
+async function updateReview() {
+    if (!editingReviewId || !supabaseClient) return;
+    
+    const ratingEl = document.querySelector('input[name="edit-rating"]:checked');
+    const commentInput = $('#edit-review-comment');
+    const comment = commentInput ? commentInput.value.trim() : '';
+    
+    if (!ratingEl) {
+        alert("Vui lòng chọn số sao!");
+        return;
+    }
+    
+    const btn = document.querySelector('#edit-review-modal .btn-primary');
+    const originalText = btn.textContent;
+    btn.textContent = "Đang lưu...";
+    btn.disabled = true;
+    
+    try {
+        const { error } = await supabaseClient
+            .from('reviews')
+            .update({
+                rating: parseInt(ratingEl.value),
+                comment: comment,
+                updated_at: new Date().toISOString()
+            })
+            .eq('review_id', editingReviewId);
+        
+        if (error) throw error;
+        
+        showNotification("Đã cập nhật đánh giá thành công!", "✅");
+        closeEditReviewModal();
+        
+        // Reload reviews
+        if (currentPsId) {
+            await loadReviews(currentPsId, true);
+        }
+        
+    } catch (err) {
+        showNotification("Cập nhật thất bại: " + err.message, "❌");
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+
+// ======================================================================
+// 4.7. HÀM MỞ MODAL XÁC NHẬN XÓA
+// ======================================================================
+function openConfirmDeleteModal(reviewId) {
+    editingReviewId = reviewId;
+    $('#confirm-delete-modal').style.display = 'flex';
+}
+
+// ======================================================================
+// 4.8. HÀM ĐÓNG MODAL XÁC NHẬN XÓA
+// ======================================================================
+function closeConfirmDeleteModal() {
+    $('#confirm-delete-modal').style.display = 'none';
+    editingReviewId = null;
+}
+
+// ======================================================================
+// 4.9. HÀM XÓA REVIEW (SOFT DELETE)
+// ======================================================================
+async function deleteReview() {
+    if (!editingReviewId || !supabaseClient) return;
+    
+    const btn = document.querySelector('#confirm-delete-modal .btn-danger');
+    const originalText = btn.textContent;
+    btn.textContent = "Đang xóa...";
+    btn.disabled = true;
+    
+    try {
+        const { error } = await supabaseClient
+            .from('reviews')
+            .update({
+                is_deleted: true,
+                updated_at: new Date().toISOString()
+            })
+            .eq('review_id', editingReviewId);
+        
+        if (error) throw error;
+        
+        showNotification("Đã xóa đánh giá thành công!", "✅");
+        closeConfirmDeleteModal();
+        
+        // Reload reviews
+        if (currentPsId) {
+            await loadReviews(currentPsId, true);
+        }
+        
+    } catch (err) {
+        showNotification("Xóa thất bại: " + err.message, "❌");
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+
+// ======================================================================
+// 4.10. CẬP NHẬT HÀM submitReview ĐỂ RESET CACHE
+// ======================================================================
+async function submitReview() {
+    if (!currentPsId) {
+        alert("Lỗi: Không tìm thấy mã sản phẩm.");
+        return;
+    }
+    if (!supabaseClient) return;
+
+    const user = await checkLoginAndRedirect("Chưa đăng nhập. Chuyển hướng để gửi đánh giá.");
+    if (!user) return;
+
+    const ratingEl = document.querySelector('input[name="rating"]:checked');
+    const commentInput = $('#review-comment');
+    const comment = commentInput ? commentInput.value.trim() : '';
+
+    if (!ratingEl) {
+        alert("Vui lòng chọn số sao!");
+        return;
+    }
+
+    const btn = $('#btn-submit-review');
+    btn.textContent = "Đang gửi...";
+    btn.disabled = true;
+
+    try {
+        const { error } = await supabaseClient
+            .from('reviews')
+            .insert([{
+                ps_id: currentPsId,
+                user_id: user.id,
+                rating: parseInt(ratingEl.value),
+                comment: comment
+            }]);
+
+        if (error) throw error;
+
+        showNotification("Cảm ơn bạn đã đánh giá!", "✅");
+        commentInput.value = '';
+        if (ratingEl) ratingEl.checked = false;
+
+        // Reset cache và load lại
+        reviewsDataCache = [];
+        loadReviews(currentPsId, true);
+
+    } catch (err) {
+        showNotification("Gửi thất bại: " + err.message, "❌");
+    } finally {
+        btn.textContent = "Gửi đánh giá";
+        btn.disabled = false;
+    }
+}
+
+// ======================================================================
+// 5. THÊM EVENT LISTENERS VÀO DOMContentLoaded
+// ======================================================================
+document.addEventListener('DOMContentLoaded', async () => {
+    // ... code hiện tại ...
+    
+    // Thêm vào phần cuối của DOMContentLoaded
+    // Event listener cho modal
+    $('#edit-review-modal').addEventListener('click', (e) => {
+        if (e.target === $('#edit-review-modal')) {
+            closeEditReviewModal();
+        }
+    });
+    
+    $('#confirm-delete-modal').addEventListener('click', (e) => {
+        if (e.target === $('#confirm-delete-modal')) {
+            closeConfirmDeleteModal();
+        }
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if ($('#edit-review-modal').style.display === 'flex') {
+                closeEditReviewModal();
+            }
+            if ($('#confirm-delete-modal').style.display === 'flex') {
+                closeConfirmDeleteModal();
+            }
+        }
+    });
+});
+// ======================================================================
 // 5. LOGIC VOICE SEARCH
 // ======================================================================
 
@@ -1251,7 +1756,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log("🚀 Initializing product-detail page...");
 
     // ======================
-    // 1. ADVANCED SEARCH HANDLING
+    // 1. ADVANCED SEARCH HANDLING (ĐÃ SỬA)
     // ======================
     const searchForm = $('#search_form');
     
@@ -1272,20 +1777,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }, 300);
             });
 
-            // 1.2. [QUAN TRỌNG] Xử lý phím mũi tên & Enter (Logic bị thiếu trước đó)
+            // 1.2. Xử lý phím mũi tên & Enter
             searchInput.addEventListener('keydown', (e) => {
                 const suggestions = $$('#search_suggestions .suggestion-item');
                 if (suggestions.length === 0) return;
 
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
-                    // Xóa highlight cũ
                     if(highlightedIndex >= 0 && suggestions[highlightedIndex]) {
                         suggestions[highlightedIndex].classList.remove('highlighted');
                     }
-                    // Tính index mới
                     highlightedIndex = (highlightedIndex + 1) % suggestions.length;
-                    // Thêm highlight mới
                     suggestions[highlightedIndex].classList.add('highlighted');
                     suggestions[highlightedIndex].scrollIntoView({ block: "nearest" });
 
@@ -1299,20 +1801,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                     suggestions[highlightedIndex].scrollIntoView({ block: "nearest" });
 
                 } else if (e.key === 'Enter') {
-                    // Nếu đang chọn một gợi ý thì click vào nó
-                    if (highlightedIndex > -1 && suggestions[highlightedIndex]) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation(); // Ngăn submit form mặc định
-                        suggestions[highlightedIndex].click();
-                    } 
-                    // Nếu không chọn gợi ý nào thì để form tự submit (xuống logic 1.3)
+                    e.preventDefault();
+                    const highlighted = suggestions[highlightedIndex];
+                    
+                    if (highlighted) {
+                        // ✅ CÓ SUGGESTION ĐƯỢC CHỌN -> CLICK VÀO NÓ
+                        e.stopImmediatePropagation();
+                        highlighted.click();
+                    } else {
+                        // ✅ KHÔNG CÓ SUGGESTION -> SUBMIT (redirect về index)
+                        const query = searchInput.value.trim();
+                        if (query) {
+                            submitSearch(query);
+                        }
+                    }
+                    
                 } else if (e.key === 'Escape') {
                     hideSuggestions();
                 }
             });
         }
 
-        // 1.3. Submit form (Khi bấm Enter mà không chọn gợi ý, hoặc bấm nút tìm kiếm)
+        // 1.3. Submit form - ✅ REDIRECT VỀ INDEX
         searchForm.onsubmit = (e) => {
             e.preventDefault();
             const query = searchInput.value.trim();

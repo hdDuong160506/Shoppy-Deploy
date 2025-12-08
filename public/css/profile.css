@@ -3,7 +3,7 @@
     width: 100%;
     max-width: 600px;
     background: #fff;
-    padding: 40px;
+    padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     margin: 50px auto;
@@ -29,6 +29,7 @@
     cursor: not-allowed;
 }
 
+/* KHÔNG THAY ĐỔI: Giữ nguyên hai nút Cập nhật và Đổi mật khẩu */
 .profile-actions {
     display: flex;
     justify-content: space-between;
@@ -36,7 +37,7 @@
     margin-top: 30px;
 }
 
-/* ĐÃ CẬP NHẬT CSS CHO NÚT CẬP NHẬT PROFILE (Bo tròn mạnh) */
+/* KHÔNG THAY ĐỔI: Nút Cập nhật Profile vẫn là 50% */
 .profile-form button[type="submit"] {
     width: 50%;
     border-radius: 25px;
@@ -57,7 +58,7 @@
     transform: scale(1.02);
 }
 
-/* ĐÃ CẬP NHẬT CSS CHO NÚT ĐỔI MẬT KHẨU (Bo tròn mạnh) */
+/* KHÔNG THAY ĐỔI: Nút Đổi Mật Khẩu vẫn là 50% */
 .btn-logout {
     width: 50%;
     background-color: #0b38cc;
@@ -101,7 +102,39 @@
     color: #4CAF50;
 }
 
-/* === CSS CHO CUSTOM MODAL === */
+
+/* === CSS CHO NÚT ĐƠN HÀNG MỚI (TẠCH BIỆT) === */
+.single-action-group {
+    margin-top: 20px; /* Tạo khoảng cách với 2 nút trên */
+}
+
+.btn-full-width {
+    display: block; /* Chiếm toàn bộ chiều rộng */
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    line-height: 1.5;
+    
+    background-color: #082a99; /* Màu nền thứ cấp */
+    border: 1px solid #082a99;
+    padding: 10px 20px; /* Padding lớn hơn để nút dễ bấm */
+    border-radius: 25px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.btn-full-width:hover {
+    background-color: #0b38cc;
+    border-color: #aaa;
+    transform: scale(1.01);
+}
+
+/* === CSS CHO CUSTOM MODAL (GIỮ NGUYÊN) === */
 .custom-modal-overlay {
     position: fixed;
     top: 0;
@@ -150,8 +183,8 @@
     border-radius: 25px;
     font-size: 14px;
     text-transform: none;
-    border: 1px solid; /* Thêm border để đồng bộ */
-    color: white; /* Đặt màu chữ mặc định là trắng */
+    border: 1px solid; 
+    color: white; 
     cursor: pointer;
 }
 

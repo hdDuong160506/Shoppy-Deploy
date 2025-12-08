@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Theo dõi đơn hàng - SHOPPY</title>
+    <link rel="icon" type="image/png" href="images/logo/logo1.png">
+    <link rel="stylesheet" href="css/product-detail.css">
+    <link rel="stylesheet" href="css/order_tracking.css">
+    <style>
+        /* Thêm CSS cho loading và notification */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #00aaff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER (GIỐNG NHƯ TRANG KHÁC) -->
+    <header class="navbar">
+        <div class="navbar-top">
+            <div class="nav-links-left">
+                <a href="seller.html" class="auth-link" id="seller-link">Kênh Người Bán</a><span>|</span><a href="#">Trở
+                    thành Người bán Shoppy</a>
+            </div>
+            <div class="nav-links-right" style="display: flex; align-items: center; gap: 12px;">
+                <a href="support.html" class="auth-link" id="support-link">❓ Hỗ Trợ</a>
+                <a href="#" class="auth-link" id="account-link">Tài Khoản</a>
+                <div id="logout-link" title="Đăng Xuất" style="margin-left: 8px; cursor: pointer; display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px"
+                        fill="#FFFFFF">
+                        <path
+                            d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-240-56-56 94-94H440v-80h238l-94-94 56-56 200 200-200 200Z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-main">
+            <div class="nav-left">
+                <a href="index.html" class="brand-link">
+                    <img src="images/logo/logo1.png" alt="Logo" class="brand-logo">
+                    <div class="brand">SHOPPY</div>
+                </a>
+            </div>
+            <div class="nav-center-search">
+                <form id="search_form" onsubmit="event.preventDefault();">
+                    <input type="text" name="search" id="search_input" placeholder="Tìm kiếm trên Shoppy..."
+                        autocomplete="off" />
+                    <div class="search-actions-right">
+                        <button type="button" onclick="openImageSearch()" class="icon-btn" title="Tìm bằng hình ảnh">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#5f6368">
+                                <path
+                                    d="M200-200h560q33 0 56.5-23.5T840-280v-480q0-33-23.5-56.5T760-840H200q-33 0-56.5 23.5T120-760v480q0 33 23.5 56.5T200-200Zm0-80v-480h560v480H200Zm40-80 140-180 100 120 160-200 160 240H240Zm-40 80h560-560Z" />
+                            </svg>
+                        </button>
+                        <button type="button" onclick="startVoiceSearch()" class="icon-btn" title="Tìm bằng giọng nói">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#5f6368">
+                                <path
+                                    d="M480-400q-50 0-85-35t-35-85v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q0 50-35 85t-85 35Zm0-240Zm-40 520v-123q-104-14-172-93t-68-184h80q0 83 58.5 141.5T480-320q83 0 141.5-58.5T680-520h80q0 105-68 184t-172 93v123h-80Zm40-360q17 0 28.5-11.5T520-520v-240q0-17-11.5-28.5T480-800q-17 0-28.5 11.5T440-760v240q0 17 11.5 28.5T480-480Z" />
+                            </svg>
+                        </button>
+                        <button type="submit" class="icon-btn search-submit" title="Tìm kiếm">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#1867f8">
+                                <path
+                                    d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+                <div id="search_suggestions"></div>
+            </div>
+            <div class="nav-right">
+                <button class="cart-btn-icon" id="open-cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px"
+                        fill="white">
+                        <path
+                            d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z" />
+                    </svg>
+                    <span class="cart-count-bubble" id="cart-count" style="display: none;">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- BREADCRUMB -->
+    <nav class="breadcrumb">
+        <a href="index.html">Trang chủ</a> /
+        <span>Theo dõi đơn hàng</span>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="order-tracking-container">
+        <h1 class="page-title">📦 Theo dõi đơn hàng của bạn</h1>
+
+        <!-- Bộ lọc đơn hàng -->
+        <div class="order-filter-controls">
+            <div class="toggle-switch">
+                <input type="checkbox" id="toggle-completed-orders" checked>
+                <label for="toggle-completed-orders" class="toggle-label">
+                    <span class="toggle-switch-inner"></span>
+                    <span class="toggle-switch-switch"></span>
+                    <span class="toggle-label-text">Hiển thị đơn hàng đã hoàn thành</span>
+                </label>
+            </div>
+        </div>
+
+        <div id="loading-state" class="loading-state">
+            <div class="spinner"></div>
+            <p>Đang tải thông tin đơn hàng...</p>
+        </div>
+
+        <div id="orders-list" class="orders-list" style="display: none;"></div>
+
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <div class="empty-icon">🛒</div>
+            <h3>Chưa có đơn hàng nào</h3>
+            <p>Hãy mua sắm và quay lại để theo dõi đơn hàng của bạn!</p>
+            <a href="index.html" class="btn-primary" style="margin-top: 20px; display: inline-block;">Mua sắm ngay</a>
+        </div>
+    </main>
+
+    <!-- MODALS -->
+    <!-- Edit Review Modal (Giống trang product-detail) -->
+    <div id="edit-review-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Đánh giá sản phẩm</h3>
+                <button class="close-btn" onclick="closeEditReviewModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="star-rating-input" id="edit-rating-stars">
+                    <input type="radio" id="edit-star5" name="edit-rating" value="5">
+                    <label for="edit-star5" title="5 sao">★</label>
+                    <input type="radio" id="edit-star4" name="edit-rating" value="4">
+                    <label for="edit-star4" title="4 sao">★</label>
+                    <input type="radio" id="edit-star3" name="edit-rating" value="3">
+                    <label for="edit-star3" title="3 sao">★</label>
+                    <input type="radio" id="edit-star2" name="edit-rating" value="2">
+                    <label for="edit-star2" title="2 sao">★</label>
+                    <input type="radio" id="edit-star1" name="edit-rating" value="1">
+                    <label for="edit-star1" title="1 sao">★</label>
+                </div>
+                <textarea id="edit-review-comment" placeholder="Nhập nội dung đánh giá..." rows="4"></textarea>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="current-review-item" value="">
+                <button class="btn-secondary" onclick="closeEditReviewModal()">Hủy</button>
+                <button class="btn-primary" onclick="submitOrderReview()">Gửi đánh giá</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER (GIỐNG NHƯ TRANG KHÁC) -->
+    <footer>
+        <div class="footer">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <h2 style="color:#00aaff; font-size:28px;">SHOPPY</h2>
+                    <p style="color:#ccc;">Web bán hàng hàng đầu Việt Nam.</p>
+                </div>
+                <h3>Đối tác thanh toán</h3>
+                <div class="partners">
+                    <img src="images/payment/visa.png" alt="Visa">
+                    <img src="images/payment/mastercard.png" alt="Mastercard">
+                    <img src="images/payment/momo.png" alt="MoMo">
+                    <img src="images/payment/vnpay.jpg" alt="VNPay">
+                    <img src="images/payment/vietqr.png" alt="VietQR">
+                    <img src="images/payment/mbbank.png" alt="MB Bank">
+                    <img src="images/payment/viettinbank.png" alt="Viettinbank">
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>Về Shoppy</h3>
+                <ul>
+                    <li><a href="about.html" class="auth-link" id="support-link">Giới thiệu</a></li>
+                    <li><a href="contact.html" class="auth-link" id="support-link">Liên hệ</a></li>
+                    <li><a href="#">Trợ giúp</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Sản phẩm</h3>
+                <ul>
+                    <li><a href="#">Các sản phẩm đặc trưng</a></li>
+                    <li><a href="#">Đồ điện tử</a></li>
+                    <li><a href="#">Thời trang</a></li>
+                    <li><a href="#">Đồ gia dụng</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Chính sách</h3>
+                <ul>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                    <li><a href="#">Điều khoản sử dụng</a></li>
+                    <li><a href="#">Đổi trả & Hoàn tiền</a></li>
+                </ul>
+
+                <h3 style="margin-top:20px;">Theo dõi chúng tôi</h3>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/profile.php?id=61584797843680" target="_blank">
+                        <img src="/images/icons/fb.jpg" alt="Facebook">
+                    </a>
+                    <a href="https://www.tiktok.com/@shoppy006?lang=vi-VN" target="_blank">
+                        <img src="/images/icons/tiktok.jpg" alt="TikTok">
+                    </a>
+                    <a href="http://www.youtube.com/@SHOPPY_Contact" target="_blank">
+                        <img src="/images/icons/youtube.png" alt="YouTube">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            @ 2025 Shoppy — Khoa CNTT, HCMUS
+        </div>
+    </footer>
+
+    <!-- LOADING OVERLAY -->
+    <div id="full-page-loading" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            flex-direction: column;
+            gap: 20px;
+        ">
+        <div class="spinner"></div>
+        <p style="color: #333; font-size: 16px;">Đang xử lý...</p>
+    </div>
+
+    <!-- DEBUG PANEL (ẩn trong production) -->
+    <div id="debug-panel" style="
+            position: fixed;
+            bottom: 50px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 9998;
+            font-size: 12px;
+            max-width: 300px;
+            display: none;
+        ">
+        <h4 style="margin: 0 0 5px 0;">Debug Info</h4>
+        <div id="debug-content"></div>
+    </div>
+
+    <script src="js/supabase-init.js"></script>
+    <script src="js/order_tracking.js"></script>
+    
+    <script>
+        // Thêm debug helper
+        window.debugOrderTracking = function() {
+            console.clear();
+            console.log('=== ORDER TRACKING DEBUG ===');
+            console.log('Window.supabase:', window.supabase);
+            supabase.auth.getUser().then(console.log);
+            supabase.from('orders').select('*').limit(5).then(console.log);
+            
+            const debugPanel = document.getElementById('debug-panel');
+            const debugContent = document.getElementById('debug-content');
+            if (debugPanel && debugContent) {
+                debugContent.innerHTML = `
+                    <div>User: ${window.currentUser?.id || 'Not logged in'}</div>
+                    <div>Orders loaded: ${window.allOrders?.length || 0}</div>
+                    <div>Show completed: ${window.showCompletedOrders}</div>
+                `;
+                debugPanel.style.display = 'block';
+                setTimeout(() => debugPanel.style.display = 'none', 5000);
+            }
+            
+            alert('Check Console (F12) for debug info');
+        };
+        
+    </script>
+</body>
+
+</html>
