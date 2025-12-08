@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Montserrat', sans-serif;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -17,6 +17,7 @@
             text-align: center;
             background: linear-gradient(135deg, #330ac5 0%, #1583dd 100%);
             color: white;
+            margin: 0;
         }
 
         .spinner {
@@ -34,51 +35,91 @@
             100% { transform: rotate(360deg); }
         }
 
-        .success {
-            color: #4ade80;
-            font-weight: bold;
-        }
+        .success { color: #4ade80; font-weight: bold; }
+        .error { color: #ff6b6b; font-weight: bold; }
 
-        h3 {
-            margin: 10px 0;
+        h3 { margin: 10px 0; font-size: 24px; }
+        p { font-size: 16px; line-height: 1.5; }
+        
+        .btn-back {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid white;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: 0.3s;
+            display: inline-block;
+        }
+        .btn-back:hover {
+            background: white;
+            color: #330ac5;
         }
     </style>
 </head>
 
 <body>
-    <div class="spinner"></div>
+    <div class="spinner" id="loading-spinner"></div>
     <h3 id="status">🔄 Đang xác thực thông tin...</h3>
-    <p id="sub-status">Vui lòng không tắt trình duyệt.</p>
+    <div id="sub-status">Vui lòng không tắt trình duyệt.</div>
 
-    <!-- 🎯 LOAD THỨ TỰ ĐÚNG: init -> redirect handler -->
     <script src="js/supabase-init.js"></script>
     <script src="js/redirect-handler.js"></script>
 
     <script>
         const statusEl = document.getElementById('status');
         const subStatusEl = document.getElementById('sub-status');
+        const spinner = document.getElementById('loading-spinner');
 
-        // 🎯 CHỈ CẬP NHẬT UI, KHÔNG TỰ REDIRECT (để redirect-handler.js xử lý)
-        supabase.auth.onAuthStateChange((event, session) => {
-            console.log('🔔 [Callback Page] Auth event:', event);
+        // --- BƯỚC 1: KIỂM TRA LỖI TRÊN URL TRƯỚC (QUAN TRỌNG) ---
+        // Khi bấm Hủy, Google trả về URL dạng: /auth-callback.html#error=access_denied&error_description=...
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const error = hashParams.get('error');
+        const errorDesc = hashParams.get('error_description');
 
-            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-                if (statusEl && subStatusEl) {
-                    statusEl.textContent = "✅ Đăng nhập thành công!";
-                    statusEl.className = "success";
-                    subStatusEl.textContent = "Đang quay lại trang trước...";
-                }
-                // 🎯 redirect-handler.js sẽ tự động xử lý redirect
-            } else if (event === 'PASSWORD_RECOVERY') {
-                if (statusEl) {
+        if (error) {
+            // ==> XỬ LÝ KHI NGƯỜI DÙNG BẤM HỦY HOẶC LỖI
+            console.error("Lỗi OAuth:", error, errorDesc);
+
+            spinner.style.display = 'none'; // Tắt vòng xoay
+            statusEl.textContent = "❌ Đăng nhập bị hủy";
+            statusEl.className = "error";
+            
+            subStatusEl.innerHTML = `
+                <p>Bạn đã từ chối cấp quyền hoặc có lỗi xảy ra.</p>
+                <a href="account.html" class="btn-back">Quay lại đăng nhập</a>
+            `;
+        } else {
+            // ==> BƯỚC 2: NẾU KHÔNG CÓ LỖI URL THÌ MỚI CHẠY LOGIC ĐĂNG NHẬP
+            supabase.auth.onAuthStateChange((event, session) => {
+                console.log('🔔 [Callback Page] Auth event:', event);
+
+                // Chỉ báo thành công khi sự kiện là SIGNED_IN hoặc INITIAL_SESSION *VÀ* CÓ SESSION
+                if (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && session)) {
+                    if (statusEl && subStatusEl) {
+                        statusEl.textContent = "✅ Đăng nhập thành công!";
+                        statusEl.className = "success";
+                        subStatusEl.textContent = "Đang quay lại trang trước...";
+                    }
+                    // File redirect-handler.js sẽ tự lo phần chuyển hướng
+                } 
+                else if (event === 'PASSWORD_RECOVERY') {
                     statusEl.textContent = "🔐 Đang chuyển đến trang đặt lại mật khẩu...";
+                    setTimeout(() => {
+                        window.location.href = 'reset-password.html';
+                    }, 1000);
                 }
-                // Đặt lại mật khẩu vẫn redirect thủ công
-                setTimeout(() => {
-                    window.location.href = 'reset-password.html';
-                }, 1000);
-            }
-        });
+                // Trường hợp INITIAL_SESSION mà session lại null (nghĩa là không đăng nhập được)
+                else if (event === 'INITIAL_SESSION' && !session) {
+                   // Có thể do vào thẳng link auth-callback mà không qua Google
+                   spinner.style.display = 'none';
+                   statusEl.textContent = "⚠️ Không tìm thấy phiên đăng nhập";
+                   subStatusEl.innerHTML = `<a href="account.html" class="btn-back">Về trang chủ</a>`;
+                }
+            });
+        }
     </script>
 </body>
 
