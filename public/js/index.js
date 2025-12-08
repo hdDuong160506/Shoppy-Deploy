@@ -192,6 +192,64 @@ async function loadProducts(search = '') {
 	}
 }
 
+// HÀM CHUNG: Tạo product card element
+function createProductCard(product) {
+	const detailUrl = `product-summary.html?product_id=${product.product_id}`;
+	const imageUrl = product.product_image_url || 'images/placeholder.jpg';
+
+	// Xử lý giá - hỗ trợ cả 2 định dạng từ API
+	const minPrice = product.min_price || product.product_min_cost;
+	const maxPrice = product.max_price || product.product_max_cost;
+
+	let priceText = '';
+	if (minPrice && minPrice > 0 && maxPrice && maxPrice > 0) {
+		const minFormatted = minPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+		const maxFormatted = maxPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+		priceText = `${minFormatted} - ${maxFormatted}₫`;
+	} else if (minPrice && minPrice > 0) {
+		priceText = formatMoney(minPrice);
+	} else {
+		priceText = 'Liên hệ qua facebook';
+	}
+
+	// Khung chứa sản phẩm
+	const productContainer = document.createElement('div');
+	productContainer.className = 'product-container';
+
+	productContainer.innerHTML = `
+      <div class="product-info">
+        <a href="${detailUrl}">
+          <img src="${imageUrl}" alt="${product.product_name}">
+        </a>
+        <div>
+            <a href="${detailUrl}" style="text-decoration:none; color:inherit;">
+              <h3>${product.product_name}</h3>
+            </a>
+            <p class="product-location">📍 ${product.location_name}</p>
+        </div>
+        <div class="product-actions-main">
+            <a href="${detailUrl}" style="text-decoration:none; color:inherit;">
+              <p class="product-price">${priceText}</p>
+              <p style="font-size:12px; color:#555;">(Giá trung bình từ các cửa hàng)</p>
+            </a>
+        </div>
+      </div>
+    `;
+
+	// Hiệu ứng hover
+	productContainer.addEventListener('mouseenter', () => {
+		productContainer.style.transform = 'translateY(-5px) scale(1.03)';
+		productContainer.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.2)';
+	});
+
+	productContainer.addEventListener('mouseleave', () => {
+		productContainer.style.transform = 'translateY(0) scale(1)';
+		productContainer.style.boxShadow = '0 4px 18px rgba(9, 11, 14, 0.06)';
+	});
+
+	return productContainer;
+}
+
 // Render kết quả tìm kiếm vào phần gợi ý
 function renderSearchResults(products, searchQuery = '') {
 	const wrap = $('#suggested-products-list');
@@ -201,7 +259,7 @@ function renderSearchResults(products, searchQuery = '') {
 	// Nếu không có sản phẩm
 	if (!products || products.length === 0) {
 		wrap.innerHTML = `
-			<div class="no-results" style="text-align:center; padding:40px 20px; grid-column:1/-1; color:#666;">
+			<div class="no-results" style="text-align:center; padding:40px 20px; width:100%; color:#666;">
 				<svg xmlns="http://www.w3.org/2000/svg" height="60" viewBox="0 -960 960 960" width="60" fill="#ccc" style="margin-bottom:20px;">
 					<path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
 				</svg>
@@ -215,67 +273,8 @@ function renderSearchResults(products, searchQuery = '') {
 	wrap.innerHTML = '';
 
 	products.forEach(product => {
-		const detailUrl = `product-summary.html?product_id=${product.product_id}`;
-		const imageUrl = product.product_image_url || 'images/placeholder.jpg';
-
-		// THAY ĐỔI QUAN TRỌNG: Xử lý giá theo logic mới
-		let priceText = '';
-
-		// Nếu không có giá bán, kiểm tra khoảng giá
-		if (product.product_min_cost && product.product_min_cost > 0 && product.product_max_cost && product.product_max_cost > 0) {
-			// Có khoảng giá -> hiển thị khoảng giá
-			const minFormatted = product.product_min_cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-			const maxFormatted = product.product_max_cost.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-			priceText = `${minFormatted} - ${maxFormatted}₫`;
-		}
-		// Nếu chỉ có giá nhỏ nhất
-		else if (product.product_min_cost && product.product_min_cost > 0) {
-			priceText = formatMoney(product.product_min_cost);
-		} else if (product.product_max_cost && product.product_max_cost > 0) {
-			priceText = formatMoney(product.product_max_cost);
-		}
-		// Không có giá nào
-		else {
-			priceText = 'Liên hệ để biết giá';
-		}
-
-		// Khung chứa sản phẩm
-		const productContainer = document.createElement('div');
-		productContainer.className = 'product-container';
-
-		// ==== Khối thông tin sản phẩm chính (ĐÃ CẬP NHẬT: Thay thế nút bằng khoảng giá) ====
-		const productCard = document.createElement('div');
-		productCard.className = 'product-info';
-
-		productCard.innerHTML = `
-      <a href="${detailUrl}">
-        <img src="${imageUrl}" alt="${product.product_name}">
-      </a>
-      <div>
-          <a href="${detailUrl}" style="text-decoration:none; color:inherit;">
-            <h3>${product.product_name}</h3>
-          </a>
-          <p class="product-location">📍 ${product.location_name}</p>
-      </div>
-      <div class="product-actions-main" style="margin-top: 5px;">
-          <a href="${detailUrl}" style="text-decoration:none; color:inherit;">
-            <p class="product-price">${priceText}</p>
-            <p style="font-size:12px; color:#555;">(Giá trung bình từ các cửa hàng)</p>
-          </a>
-      </div>
-    `;
-
-		productContainer.addEventListener('mouseenter', () => {
-			productContainer.style.transform = 'translateY(-5px) scale(1.03)';
-			productContainer.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.2)';
-		});
-
-		productContainer.addEventListener('mouseleave', () => {
-			productContainer.style.transform = 'translateY(0) scale(1)';
-			productContainer.style.boxShadow = '0 4px 18px rgba(9, 11, 14, 0.06)';
-		});
-		productContainer.appendChild(productCard);
-		wrap.appendChild(productContainer);
+		const productCard = createProductCard(product);
+		wrap.appendChild(productCard);
 	});
 
 	if (products && products.length > 0) {
@@ -304,6 +303,17 @@ async function loadSuggestedProducts(locationName = null, useGps = false) {
 	// Xóa nội dung hiển thị cũ
 	if (wrap) {
 		wrap.innerHTML = '';
+	}
+
+	// ẨN TIÊU ĐỀ KẾT QUẢ TÌM KIẾM & HIỂN THỊ TIÊU ĐỀ SẢN PHẨM GỢI Ý
+	const resultsTitle = $('#search-results-title');
+	if (resultsTitle) {
+		resultsTitle.style.display = 'none';
+	}
+
+	const suggestedTitle = $('#suggested-products-title');
+	if (suggestedTitle) {
+		suggestedTitle.style.display = 'block';
 	}
 
 	try {
@@ -415,60 +425,8 @@ function renderSuggestedProducts(products) {
 	}
 
 	products.forEach(product => {
-		const detailUrl = `product-summary.html?product_id=${product.product_id}`;
-		const imageUrl = product.product_image_url || 'images/placeholder.jpg';
-
-		const minPrice = product.min_price;
-		const maxPrice = product.max_price;
-
-		let priceText = '';
-		if (minPrice && minPrice > 0 && maxPrice && maxPrice > 0) {
-			const minFormatted = minPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-			const maxFormatted = maxPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-			priceText = `${minFormatted} - ${maxFormatted}₫`;
-		} else if (minPrice && minPrice > 0) {
-			priceText = formatMoney(minPrice);
-		} else {
-			priceText = 'Liên hệ qua facebook';
-		}
-
-		// Khung chứa sản phẩm
-		const productContainer = document.createElement('div');
-		productContainer.className = 'product-container';
-
-		// ==== Khối thông tin sản phẩm chính (ĐÃ CẬP NHẬT: Thay thế nút bằng khoảng giá) ====
-		const productCard = document.createElement('div');
-		productCard.className = 'product-info';
-
-		productCard.innerHTML = `
-      <a href="${detailUrl}">
-        <img src="${imageUrl}" alt="${product.product_name}">
-      </a>
-      <div>
-          <a href="${detailUrl}" style="text-decoration:none; color:inherit;">
-            <h3>${product.product_name}</h3>
-          </a>
-          <p class="product-location">📍 ${product.location_name}</p>
-      </div>
-      <div class="product-actions-main" style="margin-top: 5px;">
-          <a href="${detailUrl}" style="text-decoration:none; color:inherit;">
-            <p class="product-price">${priceText}</p>
-            <p style="font-size:12px; color:#555;">(Giá trung bình từ các cửa hàng)</p>
-          </a>
-      </div>
-    `;
-
-		productContainer.addEventListener('mouseenter', () => {
-			productContainer.style.transform = 'translateY(-5px) scale(1.03)';
-			productContainer.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.2)';
-		});
-
-		productContainer.addEventListener('mouseleave', () => {
-			productContainer.style.transform = 'translateY(0) scale(1)';
-			productContainer.style.boxShadow = '0 4px 18px rgba(9, 11, 14, 0.06)';
-		});
-		productContainer.appendChild(productCard);
-		wrap.appendChild(productContainer);
+		const productCard = createProductCard(product);
+		wrap.appendChild(productCard);
 	});
 }
 
@@ -514,9 +472,8 @@ function addBackToSuggestionsButton() {
 		backButton.remove();
 	});
 
-	// Thêm nút vào sau danh sách sản phẩm
-	const productList = $('#suggested-products-list');
-	container.insertBefore(backButton, productList.nextSibling);
+	// Thêm nút vào cuối container
+	container.appendChild(backButton);
 }
 
 // Reset về trạng thái hiển thị sản phẩm gợi ý
@@ -634,16 +591,14 @@ if (document.getElementById('search_form')) {
 			// Focus vào item được chọn (cuộn nếu cần)
 			suggestions[highlightedIndex].scrollIntoView({ block: "nearest" });
 		} else if (e.key === 'Enter') {
-			e.preventDefault(); // Chặn form submit mặc định
 			const highlighted = suggestions[highlightedIndex];
 			if (highlighted) {
-				// Tắt submit để tránh gọi 2 lần search
+				// Có gợi ý được chọn -> chặn submit và click vào gợi ý
+				e.preventDefault();
 				e.stopImmediatePropagation();
 				highlighted.click(); // Kích hoạt hành động của item được chọn
-			} else {
-				// Nếu không có item nào được chọn, submit form như bình thường
-				document.getElementById('search_form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 			}
+			// Nếu không có item nào được chọn -> để form submit tự nhiên (không cần preventDefault)
 		} else if (e.key === 'Escape') {
 			hideSuggestions();
 		}

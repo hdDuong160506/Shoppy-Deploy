@@ -483,8 +483,9 @@ main {
 /* Danh sách sản phẩm */
 .products {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 20px;
+  justify-items: start;
 }
 
 .product-container {
@@ -494,6 +495,8 @@ main {
   box-shadow: 0 4px 18px rgba(9, 10, 11, 0.06);
   display: flex;
   flex-direction: column;
+  max-width: 450px;
+  width: 100%;
 }
 
 .product-info {

@@ -841,7 +841,7 @@ async function filterReviews(filterType) {
 }
 
 // ======================================================================
-// 4.3. CẬP NHẬT HÀM loadReviews để hỗ trợ filter và cache
+// 4.3. CẬP NHẬT HÀM loadReviews để hỗ trợ filter và cache (XÓA SOFT DELETE)
 // ======================================================================
 async function loadReviews(psId, resetPage = false) {
     if (!psId || !supabaseClient) return;
@@ -876,13 +876,12 @@ async function loadReviews(psId, resetPage = false) {
         listEl.innerHTML = '<p style="color:#999; padding:10px">Đang tải đánh giá...</p>';
     }
 
-    // Đếm tổng số reviews (không bao gồm đã xóa)
+    // Đếm tổng số reviews (ĐÃ XÓA FILTER is_deleted)
     if (resetPage) {
         const { count, error: countError } = await supabaseClient
             .from('reviews')
             .select('*', { count: 'exact', head: true })
-            .eq('ps_id', psId)
-            .eq('is_deleted', false);
+            .eq('ps_id', psId); // 🎯 ĐÃ XÓA .eq('is_deleted', false)
 
         if (!countError && count !== null) {
             totalReviewsCount = count;
@@ -891,8 +890,7 @@ async function loadReviews(psId, resetPage = false) {
                 const { data: ratingData } = await supabaseClient
                     .from('reviews')
                     .select('rating')
-                    .eq('ps_id', psId)
-                    .eq('is_deleted', false);
+                    .eq('ps_id', psId); // 🎯 ĐÃ XÓA .eq('is_deleted', false)
                 
                 if (ratingData && ratingData.length > 0) {
                     const sumRating = ratingData.reduce((acc, curr) => acc + (curr.rating || 0), 0);
@@ -908,15 +906,14 @@ async function loadReviews(psId, resetPage = false) {
         }
     }
 
-    // Load reviews với filter
+    // Load reviews với filter (ĐÃ XÓA FILTER is_deleted)
     const from = currentReviewsPage * REVIEWS_PER_PAGE;
     const to = from + REVIEWS_PER_PAGE - 1;
 
     let query = supabaseClient
         .from('reviews')
         .select('*')
-        .eq('ps_id', psId)
-        .eq('is_deleted', false);
+        .eq('ps_id', psId); // 🎯 ĐÃ XÓA .eq('is_deleted', false)
 
     // Áp dụng filter
     switch (currentFilter) {
@@ -1180,7 +1177,7 @@ function closeConfirmDeleteModal() {
 }
 
 // ======================================================================
-// 4.9. HÀM XÓA REVIEW (SOFT DELETE)
+// 4.9. HÀM XÓA REVIEW (HARD DELETE - XÓA LUÔN)
 // ======================================================================
 async function deleteReview() {
     if (!editingReviewId || !supabaseClient) return;
@@ -1191,12 +1188,10 @@ async function deleteReview() {
     btn.disabled = true;
     
     try {
+        // SỬA: Dùng .delete() thay vì .update() để xóa cứng
         const { error } = await supabaseClient
             .from('reviews')
-            .update({
-                is_deleted: true,
-                updated_at: new Date().toISOString()
-            })
+            .delete()
             .eq('review_id', editingReviewId);
         
         if (error) throw error;
@@ -1216,7 +1211,6 @@ async function deleteReview() {
         btn.disabled = false;
     }
 }
-
 // ======================================================================
 // 4.10. CẬP NHẬT HÀM submitReview ĐỂ RESET CACHE
 // ======================================================================
