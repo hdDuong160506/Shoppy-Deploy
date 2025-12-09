@@ -14,11 +14,21 @@
     <header class="navbar">
         <div class="navbar-top">
             <div class="nav-links-left">
-                <a href="seller.html" class="auth-link" id="seller-link">Kênh Người Bán</a><span>|</span><a href="#">Trở
-                    thành Người bán Shoppy</a>
+                <a href="seller.html" class="auth-link" id="seller-link">Kênh Người Bán</a>
+                <span>|</span>
+                <a href="cooperate.html" class="auth-link" id="seller-link">Hợp tác với chúng tôi</a>
             </div>
             <div class="nav-links-right" style="display: flex; align-items: center; gap: 12px;">
-                <a href="support.html" class="auth-link" id="support-link">❓ Hỗ Trợ</a>
+                <a href="support.html" class="auth-link" id="support-link"
+                    style="display: flex; align-items: center; gap: 4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px"
+                        fill="#FFFFFF">
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <path
+                            d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z" />
+                    </svg>
+                    Hỗ Trợ
+                </a>
                 <a href="#" class="auth-link" id="account-link" onclick="window.location.href='account.html'">Tài
                     Khoản</a>
                 <div id="logout-link" title="Đăng Xuất" style="margin-left: 8px; cursor: pointer; display: none;">
@@ -287,27 +297,32 @@
                 <ul>
                     <li><a href="about.html" class="auth-link" id="support-link">Giới thiệu</a></li>
                     <li><a href="contact.html" class="auth-link" id="support-link">Liên hệ</a></li>
-                    <li><a href="#">Trợ giúp</a></li>
+                    <li><a href="support.html" class="auth-link" id="support-link">Hỗ trợ</a></li>
                 </ul>
             </div>
 
             <div class="footer-section">
                 <h3>Sản phẩm</h3>
                 <ul>
-                    <li><a href="#">Các sản phẩm đặc trưng</a></li>
-                    <li><a href="#">Đồ điện tử</a></li>
-                    <li><a href="#">Thời trang</a></li>
-                    <li><a href="#">Đồ gia dụng</a></li>
+                    <li><a href="#" onclick="return false;" style="cursor: default; opacity: 0.8;">Đặc sản & Quà
+                            tặng</a></li>
+                    <li><a href="#" onclick="return false;" style="cursor: default; opacity: 0.8;">Ẩm thực Đặc trưng</a>
+                    </li>
+                    <li><a href="#" onclick="return false;" style="cursor: default; opacity: 0.8;">Thời trang Truyền
+                            thống</a></li>
+                    <li><a href="#" onclick="return false;" style="cursor: default; opacity: 0.8;">Thủ công Mỹ nghệ</a>
+                    </li>
                 </ul>
             </div>
 
             <div class="footer-section">
                 <h3>Chính sách</h3>
                 <ul>
-                    <li><a href="#">Chính sách bảo mật</a></li>
-                    <li><a href="#">Điều khoản sử dụng</a></li>
-                    <li><a href="#">Đổi trả & Hoàn tiền</a></li>
+                    <li><a style="cursor: default; opacity: 0.8;" tabindex="-1">Chính sách bảo mật</a></li>
+                    <li><a style="cursor: default; opacity: 0.8;" tabindex="-1">Điều khoản sử dụng</a></li>
+                    <li><a style="cursor: default; opacity: 0.8;" tabindex="-1">Đổi trả & Hoàn tiền</a></li>
                 </ul>
+
 
                 <h3 style="margin-top:20px;">Theo dõi chúng tôi</h3>
                 <div class="social-icons">
@@ -329,52 +344,52 @@
         </div>
     </footer>
     <!-- Thêm modal chỉnh sửa review (đặt trước thẻ </body>) -->
-<div id="edit-review-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 500px;">
-        <div class="modal-header">
-            <h3>Chỉnh sửa đánh giá</h3>
-            <button class="close-btn" onclick="closeEditReviewModal()">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="star-rating-input" id="edit-rating-stars">
-                <input type="radio" id="edit-star5" name="edit-rating" value="5">
-                <label for="edit-star5" title="5 sao">★</label>
-                <input type="radio" id="edit-star4" name="edit-rating" value="4">
-                <label for="edit-star4" title="4 sao">★</label>
-                <input type="radio" id="edit-star3" name="edit-rating" value="3">
-                <label for="edit-star3" title="3 sao">★</label>
-                <input type="radio" id="edit-star2" name="edit-rating" value="2">
-                <label for="edit-star2" title="2 sao">★</label>
-                <input type="radio" id="edit-star1" name="edit-rating" value="1">
-                <label for="edit-star1" title="1 sao">★</label>
+    <div id="edit-review-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Chỉnh sửa đánh giá</h3>
+                <button class="close-btn" onclick="closeEditReviewModal()">×</button>
             </div>
-            <textarea id="edit-review-comment" placeholder="Nhập nội dung đánh giá..." rows="4"></textarea>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="closeEditReviewModal()">Hủy</button>
-            <button class="btn-primary" onclick="updateReview()">Lưu thay đổi</button>
-            <button class="btn-danger" onclick="confirmDeleteReview()" style="margin-left: 10px;">Xóa</button>
+            <div class="modal-body">
+                <div class="star-rating-input" id="edit-rating-stars">
+                    <input type="radio" id="edit-star5" name="edit-rating" value="5">
+                    <label for="edit-star5" title="5 sao">★</label>
+                    <input type="radio" id="edit-star4" name="edit-rating" value="4">
+                    <label for="edit-star4" title="4 sao">★</label>
+                    <input type="radio" id="edit-star3" name="edit-rating" value="3">
+                    <label for="edit-star3" title="3 sao">★</label>
+                    <input type="radio" id="edit-star2" name="edit-rating" value="2">
+                    <label for="edit-star2" title="2 sao">★</label>
+                    <input type="radio" id="edit-star1" name="edit-rating" value="1">
+                    <label for="edit-star1" title="1 sao">★</label>
+                </div>
+                <textarea id="edit-review-comment" placeholder="Nhập nội dung đánh giá..." rows="4"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeEditReviewModal()">Hủy</button>
+                <button class="btn-primary" onclick="updateReview()">Lưu thay đổi</button>
+                <button class="btn-danger" onclick="confirmDeleteReview()" style="margin-left: 10px;">Xóa</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Modal xác nhận xóa -->
-<div id="confirm-delete-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 400px;">
-        <div class="modal-header">
-            <h3>Xác nhận xóa</h3>
-            <button class="close-btn" onclick="closeConfirmDeleteModal()">×</button>
-        </div>
-        <div class="modal-body">
-            <p>Bạn có chắc chắn muốn xóa đánh giá này không?</p>
-            <p style="color: #666; font-size: 14px;">Hành động này không thể hoàn tác.</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="closeConfirmDeleteModal()">Hủy</button>
-            <button class="btn-danger" onclick="deleteReview()">Xóa</button>
+    <!-- Modal xác nhận xóa -->
+    <div id="confirm-delete-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Xác nhận xóa</h3>
+                <button class="close-btn" onclick="closeConfirmDeleteModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa đánh giá này không?</p>
+                <p style="color: #666; font-size: 14px;">Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeConfirmDeleteModal()">Hủy</button>
+                <button class="btn-danger" onclick="deleteReview()">Xóa</button>
+            </div>
         </div>
     </div>
-</div>
     <div id="full-page-loading" style="
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(255, 255, 255, 0.85); display: none; 

@@ -7,60 +7,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Thanh Toán - SHOPPY</title>
     <link rel="icon" type="image/png" href="images/logo/logo1.png">
-    <link rel="stylesheet" href="css/checkout.css"> 
+    <link rel="stylesheet" href="css/checkout.css">
 </head>
 
 <body>
+    <main style="padding-top: 100px;">
+        <div class="container">
+            <div class="section left-col">
+                <h2>🚚 Thông tin giao hàng</h2>
+                <form id="checkout-form">
+                    <div class="form-group">
+                        <label>Họ và tên người nhận</label>
+                        <input type="text" id="cus_name" required placeholder="Ví dụ: Lê Tấn Tài">
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="tel" id="cus_phone" required placeholder="Ví dụ: 0901234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ nhận hàng</label>
+                        <input type="text" id="cus_address" required placeholder="Số nhà, đường, phường/xã...">
+                    </div>
 
-    <div class="container">
-        <div class="section left-col">
-            <h2>🚚 Thông tin giao hàng</h2>
-            <form id="checkout-form">
-                <div class="form-group">
-                    <label>Họ và tên người nhận</label>
-                    <input type="text" id="cus_name" required placeholder="Ví dụ: Lê Tấn Tài">
-                </div>
-                <div class="form-group">
-                    <label>Số điện thoại</label>
-                    <input type="tel" id="cus_phone" required placeholder="Ví dụ: 0901234567">
-                </div>
-                <div class="form-group">
-                    <label>Địa chỉ nhận hàng</label>
-                    <input type="text" id="cus_address" required placeholder="Số nhà, đường, phường/xã...">
-                </div>
+                    <h2 style="margin-top: 30px;">💳 Phương thức thanh toán</h2>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="payment" value="COD" checked>
+                            <span>Thanh toán khi nhận hàng (COD)</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="payment" value="BANK">
+                            <span>Chuyển khoản ngân hàng (QR Code)</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
 
-                <h2 style="margin-top: 30px;">💳 Phương thức thanh toán</h2>
-                <div class="radio-group">
-                    <label class="radio-item">
-                        <input type="radio" name="payment" value="COD" checked>
-                        <span>Thanh toán khi nhận hàng (COD)</span>
-                    </label>
-                    <label class="radio-item">
-                        <input type="radio" name="payment" value="BANK">
-                        <span>Chuyển khoản ngân hàng (QR Code)</span>
-                    </label>
+            <div class="section right-col">
+                <h2>📦 Đơn hàng của bạn</h2>
+                <div id="checkout-items">
+                    <p>Đang tải sản phẩm...</p>
                 </div>
-            </form>
+                <div class="total-row">
+                    <span>Tổng thanh toán:</span>
+                    <span id="final-total">0₫</span>
+                </div>
+                <button type="button" class="btn-order" id="btn-place-order">ĐẶT HÀNG NGAY</button>
+                <a href="cart.html"
+                    style="display:block; text-align:center; margin-top:15px; color:#666; text-decoration:none;">Quay
+                    lại
+                    giỏ hàng</a>
+            </div>
         </div>
 
-        <div class="section right-col">
-            <h2>📦 Đơn hàng của bạn</h2>
-            <div id="checkout-items">
-                <p>Đang tải sản phẩm...</p>
-            </div>
-            <div class="total-row">
-                <span>Tổng thanh toán:</span>
-                <span id="final-total">0₫</span>
-            </div>
-            <button type="button" class="btn-order" id="btn-place-order">ĐẶT HÀNG NGAY</button>
-            <a href="cart.html"
-                style="display:block; text-align:center; margin-top:15px; color:#666; text-decoration:none;">Quay lại
-                giỏ hàng</a>
-        </div>
-    </div>
-
-    <script src="js/supabase-init.js"></script>
-    <script src="js/checkout.js"></script>
+        <script src="js/supabase-init.js"></script>
+        <script src="js/checkout.js"></script>
 </body>
 
 </html>

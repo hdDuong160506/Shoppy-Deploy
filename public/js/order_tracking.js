@@ -482,15 +482,15 @@ async function confirmDelivery(orderId) {
                     throw rpcError;
                 }
                 
-                console.log('✅ RPC succeeded:', rpcData);
+                console.log('RPC succeeded:', rpcData);
             } else {
-                console.log('✅ Update only status succeeded:', updateData2);
+                console.log('Update only status succeeded:', updateData2);
             }
         } else {
-            console.log('✅ Direct update succeeded:', updateData);
+            console.log('Direct update succeeded:', updateData);
         }
 
-        showNotification('✅ Đã xác nhận nhận hàng thành công!', '✅');
+        showNotification('Đã xác nhận nhận hàng thành công!', '✅');
         
         // Refresh ngay lập tức
         setTimeout(() => {
@@ -499,7 +499,7 @@ async function confirmDelivery(orderId) {
         }, 1000);
         
     } catch (error) {
-        console.error('💥 === confirmDelivery ERROR ===', error);
+        console.error('=== confirmDelivery ERROR ===', error);
         
         // Hiển thị thông báo lỗi chi tiết
         let errorMsg = 'Không thể xác nhận nhận hàng. ';
