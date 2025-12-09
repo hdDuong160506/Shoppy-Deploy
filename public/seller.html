@@ -9,60 +9,48 @@
     <link rel="icon" type="image/png" href="images/logo/logo1.png">
     <link rel="stylesheet" href="css/style.css">
     <style>
+        /* CSS tương tự support-container để làm khung chính */
         .seller-container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 30px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
         }
 
-        .seller-feature {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 40px;
-            align-items: center;
+        .seller-container h1 {
+            color: #d35400; /* Màu cam hoặc đỏ đất cho người bán */
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .seller-content {
             padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .seller-feature:last-child {
-            border-bottom: none;
-        }
-
-        .seller-feature img {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            flex-shrink: 0;
-        }
-
-        .feature-text h3 {
-            color: #e74c3c;
-            margin-top: 0;
-            font-size: 20px;
-        }
-
-        .feature-text p {
-            color: #555;
-            font-size: 15px;
-        }
-
-        .btn-register-seller {
-            background: #e74c3c;
-            color: white;
-            padding: 12px 30px;
-            border: none;
+            border: 2px dashed #f39c12;
             border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            background-color: #fef9e7;
+            margin-top: 20px;
         }
 
-        .btn-register-seller:hover {
-            background: #c0392b;
+        .seller-content h2 {
+            color: #e67e22;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .seller-content p {
+            color: #797d7f;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        /* Hiển thị Icon lớn */
+        .development-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: #e67e22;
         }
     </style>
 </head>
@@ -71,12 +59,21 @@
     <header class="navbar">
         <div class="navbar-top">
             <div class="nav-links-left">
-                <a href="seller.html" style="font-weight: bold;">Kênh Người Bán</a>
+                <a href="seller.html">Kênh Người Bán</a>
                 <span>|</span>
-                <a href="#">Trở thành Người bán Shoppy</a>
+                <a href="cooperate.html" class="auth-link" id="cooperate-link">Hợp tác với chúng tôi</a>
             </div>
             <div class="nav-links-right" style="display: flex; align-items: center; gap: 12px;">
-                <a href="support.html">❓ Hỗ Trợ</a>
+                <a href="support.html" class="auth-link" id="support-link"
+                    style="display: flex; align-items: center; gap: 4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px"
+                        fill="#FFFFFF">
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <path
+                            d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z" />
+                    </svg>
+                    Hỗ Trợ
+                </a>
                 <a href="account.html" class="auth-link" id="account-link">Tài Khoản</a>
                 <div id="logout-link" title="Đăng Xuất" style="margin-left: 8px; cursor: pointer; display: none;"
                     onclick="handleLogout()">
@@ -96,7 +93,7 @@
                 </a>
             </div>
             <div class="nav-center-search">
-                <h2 style="color: white; font-size: 24px;">Đăng nhập Kênh Người Bán(Đang Phát Triển)</h2>
+                <h2 style="color: white; font-size: 24px;">Kênh Người Bán (Đang Phát Triển)</h2>
             </div>
             <div class="nav-right">
                 <button class="cart-btn-icon" id="open-cart" onclick="window.location.href='cart.html'">
@@ -114,54 +111,26 @@
     <main>
         <section style="min-height: 60vh;">
             <div class="seller-container">
-                <h1 style="text-align: center; color: #e74c3c; margin-bottom: 30px;">Kênh Người Bán Shoppy - Bán hàng dễ
-                    dàng</h1>
+                <h1 style="text-align: center;">Kênh Người Bán SHOPPY</h1>
 
-                <div
-                    style="text-align: center; margin-bottom: 40px; padding: 20px; background: #fff3f3; border-radius: 10px;">
-                    <p style="font-size: 18px; color: #333; font-weight: 500;">
-                        Bạn đã sẵn sàng để trở thành một phần của cộng đồng bán hàng lớn nhất Việt Nam?
-                    </p>
-                    <a href="account.html" style="text-decoration: none;">
-                        <button class="btn-register-seller">
-                            Đăng ký/Đăng nhập ngay
-                        </button>
-                    </a>
-                </div>
+                <div class="seller-content">
+                    <div class="development-icon">🚧</div>
+                    <h2>Trang này đang được Phát triển</h2>
+                    <p>Cảm ơn bạn đã quan tâm đến việc bán hàng trên Shoppy. Hiện tại, chúng tôi đang tích cực xây dựng hệ thống Kênh Người Bán chuyên nghiệp.</p>
+                    <p>Vui lòng quay lại sau để trải nghiệm các tính năng:</p>
+                    <ul style="list-style: disc; padding-left: 40px; text-align: left; max-width: 400px; margin: 20px auto;">
+                        <li>Quản lý sản phẩm và tồn kho.</li>
+                        <li>Theo dõi đơn hàng và doanh thu.</li>
+                        <li>Công cụ phân tích hiệu suất bán hàng.</li>
+                        <li>Hỗ trợ người bán 24/7.</li>
+                    </ul>
 
-                <h2 style="color: #1e3a8a; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-                    Các tính năng nổi bật:</h2>
-
-                <div class="seller-feature">
-                    <img src="images/icons/seller_product.png" alt="Quản lý Sản phẩm">
-                    <div class="feature-text">
-                        <h3>Quản lý Sản phẩm toàn diện</h3>
-                        <p>Dễ dàng thêm, chỉnh sửa, và theo dõi tồn kho sản phẩm của bạn. Hệ thống gợi ý thông minh giúp
-                            tối ưu hóa mô tả sản phẩm để tiếp cận khách hàng tốt hơn.</p>
+                    <div style="margin-top: 30px;">
+                        <a href="cooperate.html"
+                            style="background: #27ae60; color: white; padding: 12px 25px; border: none; border-radius: 25px; font-size: 16px; cursor: pointer; margin-top: 10px; text-decoration: none; display: inline-block;">
+                            Đăng ký Hợp tác để trở thành Người Bán đầu tiên
+                        </a>
                     </div>
-                </div>
-
-                <div class="seller-feature">
-                    <img src="images/icons/seller_order.png" alt="Quản lý Đơn hàng">
-                    <div class="feature-text">
-                        <h3>Quy trình Xử lý Đơn hàng tiện lợi</h3>
-                        <p>Theo dõi mọi trạng thái đơn hàng từ lúc nhận đến khi giao thành công. Tích hợp với các đơn vị
-                            vận chuyển uy tín.</p>
-                    </div>
-                </div>
-
-                <div class="seller-feature">
-                    <img src="images/icons/seller_analytics.png" alt="Phân tích Doanh thu">
-                    <div class="feature-text">
-                        <h3>Phân tích Doanh thu & Hiệu suất</h3>
-                        <p>Xem báo cáo chi tiết về doanh thu, lượt truy cập, và hành vi mua sắm của khách hàng. Ra quyết
-                            định kinh doanh dựa trên dữ liệu chính xác.</p>
-                    </div>
-                </div>
-
-                <div style="text-align: center; margin-top: 40px;">
-                    <p style="font-size: 16px; color: #555;">Bạn đã có tài khoản bán hàng? <a href="account.html">Đăng
-                            nhập tại đây.</a></p>
                 </div>
             </div>
         </section>
@@ -185,62 +154,67 @@
                     <img src="images/payment/viettinbank.png" alt="Viettinbank">
                 </div>
             </div>
+
             <div class="footer-section">
                 <h3>Về Shoppy</h3>
                 <ul>
-                    <li><a href="#">Giới thiệu</a></li>
-                    <li><a href="#">Liên hệ</a></li>
-                    <li><a href="#">Tuyển dụng</a></li>
-                    <li><a href="support.html">Trợ giúp</a></li>
+                    <li><a href="about.html" class="auth-link" id="support-link">Giới thiệu</a></li>
+                    <li><a href="contact.html" class="auth-link" id="support-link">Liên hệ</a></li>
+                    <li><a href="support.html" class="auth-link" id="support-link">Hỗ trợ</a></li>
                 </ul>
             </div>
+
             <div class="footer-section">
                 <h3>Sản phẩm</h3>
                 <ul>
-                    <li><a href="#">Đồ dùng học tập</a></li>
-                    <li><a href="#">Đồ điện tử</a></li>
-                    <li><a href="#">Thời trang</a></li>
-                    <li><a href="#">Đồ gia dụng</a></li>
+                    <li><a href="#" onclick="return false;" style="cursor: default; opacity: 0.8;">Đặc sản & Quà
+                            tặng</a></li>
+                    <li><a href="#" onclick="return false;" style="cursor: default; opacity: 0.8;">Ẩm thực Đặc trưng</a>
+                    </li>
+                    <li><a href="#" onclick="return false;" style="cursor: default; opacity: 0.8;">Thời trang Truyền
+                            thống</a></li>
+                    <li><a href="#" onclick="return false;" style="cursor: default; opacity: 0.8;">Thủ công Mỹ nghệ</a>
+                    </li>
                 </ul>
             </div>
+
             <div class="footer-section">
                 <h3>Chính sách</h3>
                 <ul>
-                    <li><a href="#">Chính sách bảo mật</a></li>
-                    <li><a href="#">Điều khoản sử dụng</a></li>
-                    <li><a href="#">Đổi trả & Hoàn tiền</a></li>
+                    <li><a href="privacy.html">Chính sách bảo mật</a></li>
+                    <li><a href="terms.html">Điều khoản sử dụng</a></li>
+                    <li><a href="return-policy.html">Đổi trả & Hoàn tiền</a></li>
                 </ul>
+
+
                 <h3 style="margin-top:20px;">Theo dõi chúng tôi</h3>
                 <div class="social-icons">
-                    <a href="https://www.facebook.com" target="_blank">
+                    <a href="https://www.facebook.com/profile.php?id=61584797843680" target="_blank">
                         <img src="/images/icons/fb.jpg" alt="Facebook">
                     </a>
-                    <a href="https://www.instagram.com" target="_blank">
-                        <img src="/images/icons/ins.jpg" alt="Instagram">
-                    </a>
-                    <a href="https://www.tiktok.com" target="_blank">
+                    <a href="https://www.tiktok.com/@shoppy006?lang=vi-VN" target="_blank">
                         <img src="/images/icons/tiktok.jpg" alt="TikTok">
                     </a>
-                    <a href="https://www.youtube.com" target="_blank">
+                    <a href="http://www.youtube.com/@SHOPPY_Contact" target="_blank">
                         <img src="/images/icons/youtube.png" alt="YouTube">
                     </a>
                 </div>
             </div>
         </div>
+
         <div class="footer-bottom">
             @ 2025 Shoppy — Khoa CNTT, HCMUS
         </div>
     </footer>
     <script src="js/supabase-init.js"></script>
     <script>
-        // Khởi tạo các hàm cơ bản (updateAccountLink, handleLogout) từ script.js
-        // Trong môi trường thực tế, script.js sẽ được tải
-        // Ở đây, ta chỉ cần gọi những gì cần thiết
+        // Tương tự support.html, gọi các hàm từ index.js/supabase-init.js khi load trang
         document.addEventListener('DOMContentLoaded', () => {
+            // Hàm này được định nghĩa trong index.js nhưng cần thiết cho header
             if (typeof updateAccountLink === 'function') {
                 updateAccountLink();
             }
-            // Thêm logic hiển thị cart-count nếu cần (giả lập)
+            // Cập nhật số lượng giỏ hàng
             const cartCountBubble = document.getElementById('cart-count');
             if (cartCountBubble) {
                 const cart = JSON.parse(localStorage.getItem('cart_v1') || '{}');
@@ -248,7 +222,23 @@
                 cartCountBubble.textContent = count;
                 cartCountBubble.style.display = count > 0 ? 'block' : 'none';
             }
+            // Loại bỏ class page-fade-out nếu có
+            document.body.classList.remove('page-fade-out');
         });
+
+        // Hàm handleLogout (từ index.js) cần được khai báo toàn cục để HTML gọi được
+        // Trong môi trường thực tế, index.js phải được tải trước, nhưng tôi sẽ giả định có
+        window.handleLogout = async function () {
+            // Logic đăng xuất sẽ được triển khai đầy đủ trong index.js,
+            // ở đây chỉ là một placeholder đơn giản
+            const confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?");
+            if (confirmLogout) {
+                // Giả lập đăng xuất
+                console.log("Đăng xuất thành công (giả lập)");
+                localStorage.removeItem('userName');
+                window.location.reload();
+            }
+        };
     </script>
 </body>
 

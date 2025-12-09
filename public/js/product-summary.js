@@ -36,10 +36,54 @@ function hideLoading() {
 // --- 1. LOGIC CART UI (Cập nhật - Từ product-summary.js gốc) ---
 
 function saveCart() {
+    // 1. LƯU LOCALSTORAGE & UPDATE UI (Giữ nguyên logic cũ của bạn)
     localStorage.setItem('cart_v1', JSON.stringify(cart));
-    updateCartUI();
-    // Trigger fetch lại chi tiết để UI được hoàn chỉnh
-    fetchCartDetails();
+    
+    // Cập nhật giao diện ngay lập tức
+    if (typeof updateCartUI === 'function') updateCartUI();
+    
+    // Cập nhật cache chi tiết sản phẩm (như code cũ bạn đang có)
+    if (typeof fetchCartDetails === 'function') fetchCartDetails();
+
+    // 2. LOGIC MỚI: ĐỒNG BỘ LÊN DATABASE (Thêm đoạn này vào)
+    
+    // Hủy lệnh hẹn giờ cũ nếu user thao tác liên tiếp
+    if (window.summarySyncTimeout) clearTimeout(window.summarySyncTimeout);
+
+    // Đặt hẹn giờ mới (1 giây sau sẽ đẩy lên DB)
+    window.summarySyncTimeout = setTimeout(async () => {
+        // Kiểm tra Supabase có tồn tại không
+        if (typeof supabase === 'undefined') return;
+
+        try {
+            // Lấy session user
+            const { data: { session } } = await supabase.auth.getSession();
+
+            // Chỉ lưu nếu đã đăng nhập
+            if (session && session.user) {
+                console.log("☁️ [Popup] Đang đồng bộ giỏ hàng lên Database...");
+
+                // Đọc lại data mới nhất từ LocalStorage (Fresh Data)
+                const freshCart = JSON.parse(localStorage.getItem('cart_v1') || '{}');
+
+                const { error } = await supabase
+                    .from('cart')
+                    .upsert({ 
+                        user_id: session.user.id, 
+                        cart_data: freshCart, 
+                        updated_at: new Date()
+                    }, { onConflict: 'user_id' });
+
+                if (error) {
+                    console.error("❌ [Popup] Lỗi sync:", error.message);
+                } else {
+                    console.log("✅ [Popup] Đã lưu lên mây thành công!");
+                }
+            }
+        } catch (err) {
+            console.warn("⚠️ Lỗi hệ thống khi sync popup:", err);
+        }
+    }, 1000); // Debounce 1s
 }
 
 // [MỚI] Tải chi tiết sản phẩm trong giỏ hàng từ API

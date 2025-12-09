@@ -1165,12 +1165,53 @@ document.addEventListener('keydown', (e) => {
 // PHẦN 5: LOGIC GIỎ HÀNG ĐỒNG BỘ (ĐÃ CHỈNH SỬA)
 // ======================================================================
 
-// [TỪ product-detail.js] Lưu giỏ hàng vào localStorage và cập nhật UI
+// Biến toàn cục để quản lý bộ đếm thời gian (đặt ở ngoài hàm saveCart)
+let syncTimeout; 
+
 function saveCart() {
-	localStorage.setItem('cart_v1', JSON.stringify(cart));
-	updateCartUI();
-	// Trigger fetch lại chi tiết để UI được hoàn chỉnh
-	fetchCartDetails();
+    // 1. LƯU LOCALSTORAGE & UPDATE UI (Chạy ngay lập tức để app mượt)
+    localStorage.setItem('cart_v1', JSON.stringify(cart));
+    updateCartUI();
+    
+    // Trigger fetch lại chi tiết để UI được hoàn chỉnh (nếu hàm này có sẵn)
+    if (typeof fetchCartDetails === 'function') {
+        fetchCartDetails();
+    }
+
+    // 2. LƯU DATABASE (Chạy ngầm với Debounce)
+    if (typeof supabase !== 'undefined') {
+        // Xóa lệnh chờ cũ nếu người dùng thao tác tiếp trong vòng 1s
+        clearTimeout(syncTimeout);
+
+        // Thiết lập lệnh chờ mới
+        syncTimeout = setTimeout(async () => {
+            try {
+                // Lấy session hiện tại
+                const { data: { session } } = await supabase.auth.getSession();
+
+                // Chỉ lưu nếu người dùng đã đăng nhập
+                if (session && session.user) {
+                    console.log("⏳ Đang đồng bộ giỏ hàng lên Database...");
+
+                    const { error } = await supabase
+                        .from('cart')
+                        .upsert({ 
+                            user_id: session.user.id, 
+                            cart_data: cart, // Biến cart global đang chứa dữ liệu mới nhất
+                            updated_at: new Date()
+                        }, { onConflict: 'user_id' });
+
+                    if (error) {
+                        console.error("❌ Lỗi sync:", error.message);
+                    } else {
+                        console.log("✅ Đã đồng bộ xong!");
+                    }
+                }
+            } catch (err) {
+                console.warn("Lỗi hệ thống khi sync:", err);
+            }
+        }, 1000); // Đợi 1000ms (1 giây) sau khi ngừng thao tác mới đẩy lên
+    }
 }
 
 // [TỪ product-detail.js] Tải chi tiết sản phẩm trong giỏ hàng từ API
@@ -1302,7 +1343,6 @@ window.removeItem = function (key) { // Export ra window để HTML gọi đư�
 	}
 }
 
-// LOẠI BỎ: Nút xóa toàn bộ giỏ
 
 // ĐỔI TÊN & CHỨC NĂNG: Nút Thanh toán -> Xem Giỏ hàng
 if ($('#checkout')) {

@@ -1,5 +1,5 @@
 // ======================================================================
-// redirect-handler.js - XỬ LÝ REDIRECT SAU KHI ĐĂNG NHẬP (FIXED)
+// redirect-handler.js - XỬ LÝ REDIRECT & ĐỒNG BỘ DỮ LIỆU SAU LOGIN
 // ======================================================================
 
 (function() {
@@ -10,90 +10,107 @@
         return;
     }
 
-    // 🎯 KIỂM TRA XEM ĐÃ XỬ LÝ REDIRECT CHƯA (TRÁNH CHẠY 2 LẦN)
     if (window._redirectHandlerInitialized) {
         console.log('⚠️ Redirect handler already initialized, skipping...');
         return;
     }
     window._redirectHandlerInitialized = true;
 
-    // Lấy URL redirect (ưu tiên localStorage, fallback về index.html)
+    // 1. Hàm lấy URL redirect
     const getRedirectUrl = () => {
         const savedUrl = localStorage.getItem('redirect_after_login');
-        console.log('📍 Saved redirect URL:', savedUrl);
-        
-        // 🎯 NẾU KHÔNG CÓ URL LƯU -> RETURN NULL (KHÔNG REDIRECT)
         return savedUrl || null;
     };
 
-    // Lưu tên user vào localStorage
+    // 2. Hàm lưu tên user (Giữ nguyên logic cũ)
     const saveUserName = async (session) => {
-        if (session && session.user) {
-            try {
-                // Ưu tiên lấy từ database
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('name')
-                    .eq('id', session.user.id) // 🎯 FIXED: BỎ "eq." TRONG QUERY
-                    .single();
+        if (!session?.user) return;
+        try {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('name')
+                .eq('id', session.user.id)
+                .single();
 
-                const name = profile?.name || 
-                            session.user.user_metadata?.name || 
-                            session.user.email.split('@')[0];
+            const name = profile?.name || 
+                         session.user.user_metadata?.name || 
+                         session.user.email.split('@')[0];
 
-                localStorage.setItem('userName', name);
-                console.log('👤 Saved user name:', name);
-            } catch (err) {
-                console.error('⚠️ Error saving user name:', err);
-                // Fallback
-                const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
-                localStorage.setItem('userName', name);
-            }
+            localStorage.setItem('userName', name);
+            console.log('👤 Saved user name:', name);
+        } catch (err) {
+            const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
+            localStorage.setItem('userName', name);
         }
     };
 
-    // Thực hiện redirect
-    const performRedirect = (url, delay = 1000) => {
+    // --- 👇 TÍNH NĂNG MỚI: TẢI GIỎ HÀNG TỪ DB VỀ MÁY 👇 ---
+    const loadCartFromDB = async (session) => {
+        if (!session?.user) return;
+        try {
+            console.log("📥 Đang kiểm tra giỏ hàng trên Server...");
+            const { data: dbCart, error } = await supabase
+                .from('cart')
+                .select('cart_data')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+
+            if (!error && dbCart && dbCart.cart_data) {
+                // Chỉ lưu nếu giỏ hàng có dữ liệu
+                if (Object.keys(dbCart.cart_data).length > 0) {
+                    localStorage.setItem('cart_v1', JSON.stringify(dbCart.cart_data));
+                    console.log("💾 Đã đồng bộ giỏ hàng về máy:", dbCart.cart_data);
+                }
+            } else {
+                console.log("ℹ️ Không có dữ liệu giỏ hàng cũ.");
+            }
+        } catch (err) {
+            console.warn("⚠️ Lỗi nhẹ khi tải giỏ hàng (Bỏ qua):", err);
+        }
+    };
+    // --- 👆 HẾT TÍNH NĂNG MỚI 👆 ---
+
+    // 3. Hàm thực hiện Redirect
+    const performRedirect = (url, delay = 500) => {
         console.log('🔄 Redirecting to:', url);
-        
-        // 🎯 XÓA URL ĐÃ LƯU TRƯỚC KHI REDIRECT
         localStorage.removeItem('redirect_after_login');
-        
         setTimeout(() => {
             window.location.href = url;
         }, delay);
     };
 
-    // 🎯 BIẾN ĐẾM SỐ LẦN XỬ LÝ (TRÁNH LOOP VÔ HẠN)
     let authEventCount = 0;
     const MAX_AUTH_EVENTS = 3;
 
-    // Lắng nghe sự kiện đăng nhập
+    // 4. LẮNG NGHE SỰ KIỆN ĐĂNG NHẬP (TRÁI TIM CỦA LOGIC)
     supabase.auth.onAuthStateChange(async (event, session) => {
         authEventCount++;
-        
-        if (authEventCount > MAX_AUTH_EVENTS) {
-            console.warn('⚠️ Too many auth events, stopping...');
-            return;
-        }
+        if (authEventCount > MAX_AUTH_EVENTS) return;
 
-        console.log(`🔔 Auth Event #${authEventCount}:`, event, 'Session:', !!session);
+        console.log(`🔔 Auth Event #${authEventCount}:`, event);
 
-        // 🎯 CHỈ XỬ LÝ KHI EVENT LÀ 'SIGNED_IN' 
+        // Chỉ xử lý khi ĐĂNG NHẬP THÀNH CÔNG
         if (event === 'SIGNED_IN' && session) {
-            console.log('✅ Đăng nhập thành công!');
+            console.log('✅ Đăng nhập thành công! Bắt đầu đồng bộ dữ liệu...');
             
-            // Lưu tên user
-            await saveUserName(session);
+            // Dùng Promise.all để chạy song song cả 2 việc cho nhanh:
+            // 1. Lưu tên hiển thị
+            // 2. Tải giỏ hàng về
+            await Promise.all([
+                saveUserName(session),
+                loadCartFromDB(session) // <--- Gọi hàm tải giỏ hàng ở đây
+            ]);
 
-            // Lấy URL đích
+            console.log('✅ Đồng bộ hoàn tất. Chuẩn bị chuyển trang.');
+
+            // Sau khi đồng bộ xong xuôi mới Redirect
             const redirectUrl = getRedirectUrl();
-            
             if (redirectUrl) {
-                console.log('📍 Found redirect URL:', redirectUrl);
                 performRedirect(redirectUrl, 500);
             } else {
-                console.log('📍 No redirect URL found, staying on current page');
+                console.log('📍 Không có URL đích, ở lại trang hiện tại (hoặc về trang chủ).');
+                // Nếu muốn mặc định về trang chủ khi không có đích đến:
+                // performRedirect('index.html', 500); 
             }
         }
     });

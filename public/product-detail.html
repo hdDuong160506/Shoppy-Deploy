@@ -318,9 +318,9 @@
             <div class="footer-section">
                 <h3>Chính sách</h3>
                 <ul>
-                    <li><a style="cursor: default; opacity: 0.8;" tabindex="-1">Chính sách bảo mật</a></li>
-                    <li><a style="cursor: default; opacity: 0.8;" tabindex="-1">Điều khoản sử dụng</a></li>
-                    <li><a style="cursor: default; opacity: 0.8;" tabindex="-1">Đổi trả & Hoàn tiền</a></li>
+                    <li><a href="privacy.html">Chính sách bảo mật</a></li>
+                    <li><a href="terms.html">Điều khoản sử dụng</a></li>
+                    <li><a href="return-policy.html">Đổi trả & Hoàn tiền</a></li>
                 </ul>
 
 
@@ -343,7 +343,6 @@
             @ 2025 Shoppy — Khoa CNTT, HCMUS
         </div>
     </footer>
-    <!-- Thêm modal chỉnh sửa review (đặt trước thẻ </body>) -->
     <div id="edit-review-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
@@ -373,7 +372,6 @@
         </div>
     </div>
 
-    <!-- Modal xác nhận xóa -->
     <div id="confirm-delete-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
@@ -387,6 +385,28 @@
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeConfirmDeleteModal()">Hủy</button>
                 <button class="btn-danger" onclick="deleteReview()">Xóa</button>
+            </div>
+        </div>
+    </div>
+    <div class="custom-modal-overlay" id="custom-confirm-modal" style="
+            /* CSS TỐI THIỂU để modal hoạt động đúng */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; 
+            align-items: center; z-index: 9000;
+        ">
+        <div class="custom-modal-content" style="
+                background: white; padding: 30px; border-radius: 10px; width: 90%; 
+                max-width: 400px; text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            ">
+            <h3 id="modal-title" style="color: #0b38cc; margin-top: 0; margin-bottom: 15px;">Xác nhận</h3>
+            <p id="modal-message" style="margin-top: 0; margin-bottom: 25px; font-size: 16px; line-height: 1.5;">
+                Bạn có chắc chắn muốn thực hiện hành động này không?</p>
+            <div class="modal-actions" style="display: flex; justify-content: space-around; gap: 15px;">
+                <button id="modal-confirm-no"
+                    style="width: 45%; padding: 10px; border-radius: 25px; font-size: 14px; text-transform: none; background-color: #ccc; border: 1px solid #ccc; color: #333; cursor: pointer;">Hủy</button>
+                <button id="modal-confirm-yes"
+                    style="width: 45%; padding: 10px; border-radius: 25px; font-size: 14px; text-transform: none; background-color: #0b38cc; border: 1px solid #0b38cc; color: white; cursor: pointer;">Đồng
+                    ý</button>
             </div>
         </div>
     </div>

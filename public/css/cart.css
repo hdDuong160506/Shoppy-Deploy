@@ -260,3 +260,7 @@ body.page-fade-out {
         transform: translateY(-10px);
     }
 }
+/* Thêm vào file CSS của bạn */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-bold { font-weight: bold; }

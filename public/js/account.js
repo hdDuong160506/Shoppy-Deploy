@@ -33,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. XỬ LÝ ĐĂNG KÝ (GỌI SERVER PYTHON CHECK EMAIL TRƯỚC)
     // ============================================================
     const registerForm = document.getElementById('register-form');
-    
+
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const name = document.getElementById('reg-name').value;
             const email = document.getElementById('reg-email').value.trim();
             const pwd = document.getElementById('reg-pwd').value;
@@ -132,26 +132,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const msg = document.getElementById('login-message');
             const btn = e.submitter;
 
-            msg.textContent = "⏳ Đang đăng nhập...";
+            // Reset trạng thái
+            msg.textContent = "⏳ Đang xử lý...";
             msg.className = "message";
             btn.disabled = true;
 
+            // 1. Đăng nhập
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email,
                 password: pwd
             });
 
             if (error) {
-                msg.textContent = "❌ Email hoặc mật khẩu không đúng.";
+                msg.textContent = "❌ " + error.message;
                 msg.className = "message error";
                 btn.disabled = false;
             } else {
-                // 🎯 FIXED: CHỈ HIỂN THỊ THÔNG BÁO, KHÔNG TỰ REDIRECT
-                msg.textContent = "✅ Đăng Nhập Thành công! Đang chuyển hướng...";
+                console.log("✅ Đăng nhập thành công. User ID:", data.user.id);
+
+                // --- ĐÃ BỎ ĐOẠN LOAD DATABASE TẠI ĐÂY ---
+                // Việc đồng bộ giỏ hàng sẽ do trang Cart tự xử lý khi user truy cập vào đó.
+
+                // 2. Thông báo thành công
+                msg.textContent = "✅ Đăng nhập thành công! Đang chuyển hướng...";
                 msg.className = "message success";
-                
-                // 🎯 redirect-handler.js SẼ TỰ ĐỘNG XỬ LÝ REDIRECT
-                // (Không cần code gì thêm ở đây)
+
+                // File 'redirect-handler.js' sẽ tự động bắt sự kiện đăng nhập 
+                // và chuyển trang ngay lập tức.
             }
         });
     }
@@ -160,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. XỬ LÝ SOCIAL LOGIN (GOOGLE & FACEBOOK)
     // CHỈ CHỌN NÚT TRONG FORM ĐĂNG NHẬP
     // ============================================================
-    
+
     // Nút Google
     document.querySelectorAll('#login-form .google-login-link').forEach(btn => { // <--- ĐÃ CHỈNH SỬA SELECTOR
         btn.addEventListener('click', () => {
@@ -174,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // 5. XỬ LÝ QUÊN MẬT KHẨU (BỎ HẾT CÁC BƯỚC OTP)
     // ============================================================
-    
+
     const forgotLink = document.getElementById('forgot-password-link');
     const modal = document.getElementById('modal-overlay');
     const closeModal = document.getElementById('close-modal');
@@ -182,12 +189,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mở/Đóng Modal
     if (forgotLink) {
-        forgotLink.addEventListener('click', (e) => { 
-            e.preventDefault(); 
-            modal.style.display = 'flex'; 
+        forgotLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            modal.style.display = 'flex';
             document.getElementById('modal-title').textContent = "Đặt lại mật khẩu";
             document.getElementById('forgot-message').textContent = "";
-            forgotForm.reset(); 
+            forgotForm.reset();
         });
     }
     if (closeModal) {
@@ -198,8 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (forgotForm) {
         forgotForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const emailInput = document.getElementById('reset-email-phone-input'); 
+
+            const emailInput = document.getElementById('reset-email-phone-input');
             const msg = document.getElementById('forgot-message');
             const btn = e.submitter;
 
@@ -221,8 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email })
                 });
-                
-                const data = await checkRes.json(); 
+
+                const data = await checkRes.json();
                 // data trả về dạng: { "exists": true, "provider": "google" (hoặc "email") }
 
                 // 2. LOGIC KIỂM TRA
@@ -244,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 3. NẾU LÀ EMAIL THƯỜNG -> GỌI SUPABASE GỬI MAIL
                 msg.textContent = "⏳ Đang gửi email...";
-                
+
                 const { error } = await supabase.auth.resetPasswordForEmail(email, {
                     redirectTo: window.location.origin + '/reset-password.html'
                 });
@@ -288,13 +295,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ======================================================================
     supabase.auth.onAuthStateChange(async (event, session) => {
         console.log('🔔 [account.js] Auth event:', event);
-        
+
         // 🎯 FIXED: CHỈ LƯU TÊN USER, KHÔNG TỰ REDIRECT
         if (event === 'SIGNED_IN' && session) {
             const user = session.user;
             const name = user.user_metadata.name || user.email.split('@')[0];
             localStorage.setItem('userName', name);
-            
+
             // 🎯 redirect-handler.js SẼ TỰ ĐỘNG XỬ LÝ REDIRECT
             console.log('👤 User logged in:', name);
         }
@@ -307,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.addEventListener('click', () => {
             const targetId = toggle.getAttribute('data-target');
             const passwordInput = document.getElementById(targetId);
-            
+
             if (!passwordInput) return;
 
             // Chuyển đổi loại input

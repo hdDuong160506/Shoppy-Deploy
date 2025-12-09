@@ -8,12 +8,46 @@ function formatMoney(n) {
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '₫'; 
 }
 
+// === THÊM: Hàm hiển thị thông báo tùy chỉnh ===
+function showNotification(title, message, type = 'info', duration = 4000) {
+    const container = $('#notification-container');
+    if (!container) return; // Nếu chưa có container, bỏ qua
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-title">${title}</div>
+        <div class="notification-message">${message}</div>
+    `;
+
+    container.appendChild(notification);
+    
+    // Hiển thị (sử dụng requestAnimationFrame để đảm bảo CSS transition hoạt động)
+    requestAnimationFrame(() => {
+        notification.classList.add('show');
+    });
+
+    // Tự động ẩn sau thời gian định sẵn
+    setTimeout(() => {
+        notification.classList.remove('show');
+        
+        // Chờ transition kết thúc rồi xóa khỏi DOM
+        setTimeout(() => {
+            notification.remove();
+        }, 300); // 300ms = thời gian transition CSS
+    }, duration);
+}
+// ===============================================
+
 // 1. Load dữ liệu giỏ hàng
 async function loadCheckoutInfo() {
     const cartKeys = Object.keys(cart);
     if (cartKeys.length === 0) {
-        alert("Giỏ hàng trống!");
-        window.location.href = "index.html";
+        // alert("Giỏ hàng trống!"); // ĐÃ THAY BẰNG showNotification
+        showNotification("Giỏ hàng trống", "Bạn sẽ được chuyển về trang chủ.", 'error');
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 2000); // Chờ 2s để người dùng đọc thông báo
         return;
     }
 
@@ -84,6 +118,8 @@ async function renderOrderSummary(data) {
                 finalPsId = dbData.ps_id;
             } else {
                 console.error(`Không tìm thấy ps_id cho ${key}`);
+                // THÔNG BÁO MỚI khi bỏ qua món lỗi
+                showNotification(`Lỗi sản phẩm: ${details.product_name}`, "Không tìm thấy mã chi tiết sản phẩm (ps_id). Vui lòng tải lại trang.", 'error');
                 return; // Bỏ qua món lỗi này để không hỏng cả đơn
             }
         }
@@ -137,12 +173,14 @@ async function handlePlaceOrder() {
 
     // Validate
     if (!name || !phone || !address) {
-        alert("Vui lòng điền đầy đủ thông tin giao hàng!");
+        // alert("Vui lòng điền đầy đủ thông tin giao hàng!"); // ĐÃ THAY BẰNG showNotification
+        showNotification("Thiếu thông tin", "Vui lòng điền đầy đủ Họ tên, Số điện thoại và Địa chỉ nhận hàng.", 'error');
         return;
     }
 
     if (checkoutItemsData.length === 0) {
-        alert("Danh sách sản phẩm trống hoặc lỗi dữ liệu. Vui lòng tải lại trang.");
+        // alert("Danh sách sản phẩm trống hoặc lỗi dữ liệu. Vui lòng tải lại trang."); // ĐÃ THAY BẰNG showNotification
+        showNotification("Lỗi đơn hàng", "Danh sách sản phẩm trống. Vui lòng tải lại trang.", 'error');
         return;
     }
 
@@ -165,18 +203,26 @@ async function handlePlaceOrder() {
         if (error) throw error;
 
         // Thành công
-        alert(`✅ Đặt hàng thành công!\nMã đơn hàng: #${data}`);
+        // alert(`✅ Đặt hàng thành công!\nMã đơn hàng: #${data}`); // ĐÃ THAY BẰNG showNotification
+        showNotification("Đặt hàng thành công!", `Mã đơn hàng: #${data}. Đang chuyển hướng...`, 'success', 3000);
         
         // Xóa giỏ hàng & về trang chủ
         localStorage.removeItem('cart_v1');
-        window.location.href = "order_tracking.html"; 
+        setTimeout(() => {
+            window.location.href = "order_tracking.html";
+        }, 3000); // Chờ 3s để người dùng kịp đọc thông báo
+        
 
     } catch (err) {
         console.error("Lỗi đặt hàng:", err);
-        alert("Lỗi hệ thống: " + (err.message || err.details || JSON.stringify(err)));
+        // alert("Lỗi hệ thống: " + (err.message || err.details || JSON.stringify(err))); // ĐÃ THAY BẰNG showNotification
+        showNotification("Lỗi đặt hàng", `Hệ thống gặp sự cố: ${err.message || err.details || 'Lỗi không xác định'}`, 'error', 5000);
     } finally {
-        btn.textContent = originalText;
-        btn.disabled = false;
+        // Chỉ reset nút nếu chưa chuyển trang
+        if(window.location.href.indexOf("order_tracking.html") === -1) {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
     }
 }
 

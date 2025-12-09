@@ -168,21 +168,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 4. XỬ LÝ ĐĂNG XUẤT (SỬ DỤNG CUSTOM MODAL)
     // ============================================================
     document.getElementById('logout-link').addEventListener('click', async (e) => {
-        e.preventDefault();
-        
-        const confirmLogout = await showCustomConfirm("Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?"); 
-        if (!confirmLogout) return;
-        
-        const { error } = await supabase.auth.signOut();
+    e.preventDefault();
+    
+    const confirmLogout = await showCustomConfirm("Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?"); 
+    if (!confirmLogout) return;
+    
+    const { error } = await supabase.auth.signOut();
 
-        if (error) {
-            console.error("Lỗi Đăng xuất:", error.message);
-            alert("Đăng xuất thất bại!");
-        } else {
-            localStorage.removeItem('userName');
-            window.location.href = 'account.html';
-        }
-    });
+    if (error) {
+        console.error("Lỗi Đăng xuất:", error.message);
+        alert("Đăng xuất thất bại!");
+    } else {
+        // --- CẬP NHẬT Ở ĐÂY ---
+        // Xóa TOÀN BỘ LocalStorage (Gồm: userName, cart_v1, và các rác còn sót lại)
+        localStorage.clear(); 
+        
+        // Chuyển hướng về trang đăng nhập
+        window.location.href = 'account.html';
+    }
+});
 });
 
 // --- HÀM LOAD DỮ LIỆU VÀO FORM ---

@@ -57,7 +57,6 @@
 </head>
 
 <body>
-    <!-- HEADER (GIỐNG NHƯ TRANG KHÁC) -->
     <header class="navbar">
         <div class="navbar-top">
             <div class="nav-links-left">
@@ -136,17 +135,14 @@
         </div>
     </header>
 
-    <!-- BREADCRUMB -->
     <nav class="breadcrumb">
         <a href="index.html">Trang chủ</a> /
         <span>Theo dõi đơn hàng</span>
     </nav>
 
-    <!-- MAIN CONTENT -->
     <main class="order-tracking-container">
         <h1 class="page-title">📦 Theo dõi đơn hàng của bạn</h1>
 
-        <!-- Bộ lọc đơn hàng -->
         <div class="order-filter-controls">
             <div class="toggle-switch">
                 <input type="checkbox" id="toggle-completed-orders" checked>
@@ -173,8 +169,6 @@
         </div>
     </main>
 
-    <!-- MODALS -->
-    <!-- Edit Review Modal (Giống trang product-detail) -->
     <div id="edit-review-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
@@ -200,6 +194,22 @@
                 <input type="hidden" id="current-review-item" value="">
                 <button class="btn-secondary" onclick="closeEditReviewModal()">Hủy</button>
                 <button class="btn-primary" onclick="submitOrderReview()">Gửi đánh giá</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmation-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="border-bottom: none;">
+                <h3 id="confirm-modal-title">Xác nhận</h3>
+                <button class="close-btn" onclick="hideConfirmationModal()">×</button>
+            </div>
+            <div class="modal-body" style="padding-top: 0;">
+                <p id="confirm-modal-message">Bạn có chắc chắn muốn thực hiện hành động này không?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-cancel-btn" class="btn-secondary" onclick="handleConfirmation(false)">Hủy</button>
+                <button id="confirm-ok-btn" class="btn-primary" onclick="handleConfirmation(true)">Xác nhận</button>
             </div>
         </div>
     </div>
@@ -249,9 +259,9 @@
             <div class="footer-section">
                 <h3>Chính sách</h3>
                 <ul>
-                    <li><a style="cursor: default; opacity: 0.8;" tabindex="-1">Chính sách bảo mật</a></li>
-                    <li><a style="cursor: default; opacity: 0.8;" tabindex="-1">Điều khoản sử dụng</a></li>
-                    <li><a style="cursor: default; opacity: 0.8;" tabindex="-1">Đổi trả & Hoàn tiền</a></li>
+                    <li><a href="privacy.html">Chính sách bảo mật</a></li>
+                    <li><a href="terms.html">Điều khoản sử dụng</a></li>
+                    <li><a href="return-policy.html">Đổi trả & Hoàn tiền</a></li>
                 </ul>
 
 
@@ -275,7 +285,6 @@
         </div>
     </footer>
 
-    <!-- LOADING OVERLAY -->
     <div id="full-page-loading" style="
             position: fixed;
             top: 0;
@@ -294,7 +303,6 @@
         <p style="color: #333; font-size: 16px;">Đang xử lý...</p>
     </div>
 
-    <!-- DEBUG PANEL (ẩn trong production) -->
     <div id="debug-panel" style="
             position: fixed;
             bottom: 50px;
@@ -336,7 +344,8 @@
                 setTimeout(() => debugPanel.style.display = 'none', 5000);
             }
 
-            alert('Check Console (F12) for debug info');
+            // ĐÃ THAY alert() BẰNG showNotification()
+            window.showNotification('Thông tin Debug đã được ghi vào Console (F12)', 'ℹ️');
         };
 
     </script>

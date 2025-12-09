@@ -7,6 +7,10 @@ let editingItem = null;
 let showCompletedOrders = true; // Mặc định hiển thị đơn hàng đã hoàn thành
 let allOrders = []; // Lưu tất cả đơn hàng để lọc
 
+// Biến cho Confirmation Modal
+let confirmationResolver = null; // Promise resolver
+let currentConfirmTarget = null; // Dữ liệu cho hành động xác nhận
+
 // Utility function
 const $ = sel => document.querySelector(sel);
 
@@ -39,6 +43,33 @@ function showNotification(message, icon = '✅') {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
+
+// === THÊM: Confirmation Modal Functions ===
+function showConfirmationModal(title, message, targetData) {
+    $('#confirm-modal-title').textContent = title;
+    $('#confirm-modal-message').textContent = message;
+    currentConfirmTarget = targetData;
+    $('#confirmation-modal').style.display = 'flex';
+
+    return new Promise(resolve => {
+        confirmationResolver = resolve;
+    });
+}
+
+function hideConfirmationModal() {
+    $('#confirmation-modal').style.display = 'none';
+}
+
+function handleConfirmation(result) {
+    hideConfirmationModal();
+    if (confirmationResolver) {
+        confirmationResolver({ confirmed: result, target: currentConfirmTarget });
+        confirmationResolver = null;
+        currentConfirmTarget = null;
+    }
+}
+// ==========================================
+
 
 // Load orders
 async function loadUserOrders() {
@@ -426,8 +457,15 @@ async function confirmDelivery(orderId) {
         return;
     }
     
-    if (!confirm('Bạn có chắc chắn đã nhận được hàng?')) return;
+    // THAY THẾ confirm() BẰNG showConfirmationModal()
+    const confirmation = await showConfirmationModal(
+        'Xác nhận nhận hàng', 
+        `Bạn có chắc chắn đã nhận được đơn hàng #${orderId}?`,
+        { orderId }
+    );
     
+    if (!confirmation.confirmed) return; // Nếu người dùng hủy
+
     // Hiển thị loading
     const fullPageLoading = $('#full-page-loading');
     if (fullPageLoading) fullPageLoading.style.display = 'flex';
@@ -653,6 +691,7 @@ async function updateAccountLink() {
             
             if (logoutLink) {
                 logoutLink.style.display = 'flex';
+                // GIỮ NGUYÊN confirm() ở đây, vì việc thay thế cần một modal xác nhận khác
                 logoutLink.onclick = async () => {
                     if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
                         await supabase.auth.signOut();
@@ -733,10 +772,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // THÊM: Listener để đóng Confirmation Modal
+    $('#confirmation-modal').addEventListener('click', (e) => {
+        if (e.target === $('#confirmation-modal')) {
+            handleConfirmation(false);
+        }
+    });
+
     // Escape key to close modal
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeEditReviewModal();
+            // Đóng Confirmation Modal nếu đang mở
+            if ($('#confirmation-modal').style.display === 'flex') {
+                handleConfirmation(false);
+            }
         }
     });  
     console.log('=== INIT COMPLETE ===');
@@ -756,3 +806,26 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// XÓA alert() trong helper debug
+window.debugOrderTracking = function () {
+    console.clear();
+    console.log('=== ORDER TRACKING DEBUG ===');
+    console.log('Window.supabase:', window.supabase);
+    supabase.auth.getUser().then(console.log);
+    supabase.from('orders').select('*').limit(5).then(console.log);
+
+    const debugPanel = document.getElementById('debug-panel');
+    const debugContent = document.getElementById('debug-content');
+    if (debugPanel && debugContent) {
+        debugContent.innerHTML = `
+            <div>User: ${window.currentUser?.id || 'Not logged in'}</div>
+            <div>Orders loaded: ${window.allOrders?.length || 0}</div>
+            <div>Show completed: ${window.showCompletedOrders}</div>
+        `;
+        debugPanel.style.display = 'block';
+        setTimeout(() => debugPanel.style.display = 'none', 5000);
+    }
+
+    showNotification('Thông tin Debug đã được ghi vào Console (F12)', 'ℹ️');
+};
