@@ -93,46 +93,9 @@
                 </a>
             </div>
             <div class="nav-center-search">
-                <form id="search_form" onsubmit="event.preventDefault();">
-                    <input type="text" name="search" id="search_input" placeholder="Tìm kiếm trên Shoppy..."
-                        autocomplete="off" />
-                    <div class="search-actions-right">
-                        <button type="button" onclick="openImageSearch()" class="icon-btn" title="Tìm bằng hình ảnh">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                                fill="#5f6368">
-                                <path
-                                    d="M200-200h560q33 0 56.5-23.5T840-280v-480q0-33-23.5-56.5T760-840H200q-33 0-56.5 23.5T120-760v480q0 33 23.5 56.5T200-200Zm0-80v-480h560v480H200Zm40-80 140-180 100 120 160-200 160 240H240Zm-40 80h560-560Z" />
-                            </svg>
-                        </button>
-                        <button type="button" onclick="startVoiceSearch()" class="icon-btn" title="Tìm bằng giọng nói">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                                fill="#5f6368">
-                                <path
-                                    d="M480-400q-50 0-85-35t-35-85v-240q0-50 35-85t85-35q50 0 85 35t35 85v240q0 50-35 85t-85 35Zm0-240Zm-40 520v-123q-104-14-172-93t-68-184h80q0 83 58.5 141.5T480-320q83 0 141.5-58.5T680-520h80q0 105-68 184t-172 93v123h-80Zm40-360q17 0 28.5-11.5T520-520v-240q0-17-11.5-28.5T480-800q-17 0-28.5 11.5T440-760v240q0 17 11.5 28.5T480-480Z" />
-                            </svg>
-                        </button>
-                        <button type="submit" class="icon-btn search-submit" title="Tìm kiếm">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                                fill="#1867f8">
-                                <path
-                                    d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
-                            </svg>
-                        </button>
-                    </div>
-                </form>
-                <div id="search_suggestions"></div>
+                <h2 style="color: white; font-size: 24px;">Theo Dõi Đơn Hàng Của Bạn</h2>
             </div>
-            <div class="nav-right">
-                <button class="cart-btn-icon" id="open-cart">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px"
-                        fill="white">
-                        <path
-                            d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z" />
-                    </svg>
-                    <span class="cart-count-bubble" id="cart-count" style="display: none;">0</span>
-                </button>
             </div>
-        </div>
     </header>
 
     <nav class="breadcrumb">

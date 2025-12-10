@@ -117,21 +117,32 @@ async function fetchCartDetails() {
     } catch (err) { console.error("Lỗi fetchCartDetails:", err); }
 }
 
-window.changeQty = function (key, delta) {
+// SỬA ĐỔI: Thêm event và chặn lan truyền
+window.changeQty = function (key, delta, event) {
+    // CHẶN event lan truyền ra document, ngăn popup đóng
+    if (event && typeof event.stopPropagation === 'function') {
+		event.stopPropagation(); 
+	}
     cart[key] = (cart[key] || 0) + delta;
     if (cart[key] <= 0) delete cart[key];
     saveCart();
 }
 
-window.removeItem = function (key) {
-    // SỬ DỤNG CUSTOM MODAL thay cho confirm() gốc
-    showCustomConfirm("Xóa sản phẩm này khỏi giỏ hàng?").then(confirmRemove => {
-        if (confirmRemove) {
-            delete cart[key];
-            if (CART_CACHE[key]) delete CART_CACHE[key]; // Xóa khỏi cache
-            saveCart();
-        }
-    });
+// Xóa khỏi giỏ
+window.removeItem = async function (key, event) { // THÊM ASYNC
+	// CHẶN event lan truyền ra document, ngăn popup đóng
+	if (event && typeof event.stopPropagation === 'function') {
+		event.stopPropagation();
+	}
+	
+	// Thay thế confirm() bằng showCustomConfirm()
+	const confirmDelete = await showCustomConfirm('Xóa sản phẩm này khỏi giỏ hàng?');
+
+	if (confirmDelete) { // Nếu người dùng xác nhận
+		delete cart[key];
+		if (CART_CACHE[key]) delete CART_CACHE[key]; // Xóa khỏi cache
+		saveCart();
+	}
 }
 
 // [ĐÃ CHỈNH SỬA] Cập nhật giao diện giỏ hàng sử dụng CART_CACHE
@@ -177,10 +188,10 @@ function updateCartUI() {
                     <div style="font-size:13px;color:#333">${formatMoney(price)} x ${qty}</div>
                 </div>
                 <div class="qty">
-                     <button class="small-btn" onclick="changeQty('${key}', -1)">-</button>
+                     <button class="small-btn" onclick="changeQty('${key}', -1, event)">-</button>
                      <div style="min-width:20px; text-align:center">${qty}</div>
-                     <button class="small-btn" onclick="changeQty('${key}', 1)">+</button>
-                     <button class="small-btn" style="margin-left:6px; color:red;" onclick="removeItem('${key}')">x</button>
+                     <button class="small-btn" onclick="changeQty('${key}', 1, event)">+</button>
+                     <button class="small-btn" style="margin-left:6px; color:red;" onclick="removeItem('${key}', event)">x</button>
                 </div>
             `;
             cartList.appendChild(item);
@@ -1105,6 +1116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cartPopup.style.display = (cartPopup.style.display === 'block') ? 'none' : 'block';
         });
 
+        // Đã sửa lỗi: Giữ nguyên logic này, nhưng các nút trong popup đã chặn propogation
         document.addEventListener('click', (e) => {
             if (!cartBtn.contains(e.target) && !cartPopup.contains(e.target) && cartPopup.style.display === 'block') {
                 cartPopup.style.display = 'none';

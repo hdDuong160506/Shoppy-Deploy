@@ -1294,10 +1294,10 @@ function updateCartUI() {
                     <div style="font-size:13px;color:#333">${formatMoney(price)} x ${qty}</div>
                 </div>
                 <div class="qty">
-                     <button class="small-btn" onclick="changeQty('${key}', -1)">-</button>
+                     <button class="small-btn" onclick="changeQty('${key}', -1, event)">-</button>
                      <div style="min-width:20px; text-align:center">${qty}</div>
-                     <button class="small-btn" onclick="changeQty('${key}', 1)">+</button>
-                     <button class="small-btn" style="margin-left:6px; color:red;" onclick="removeItem('${key}')">x</button>
+                     <button class="small-btn" onclick="changeQty('${key}', 1, event)">+</button>
+                     <button class="small-btn" style="margin-left:6px; color:red;" onclick="removeItem('${key}', event)">x</button>
                 </div>
             `;
 			cartList.appendChild(item);
@@ -1327,16 +1327,33 @@ function addToCart(productId, storeId) {
 	alert("Vui lòng vào trang Chi Tiết Sản Phẩm để thêm vào giỏ hàng!");
 }
 
-// Tăng/giảm số lượng - GIỮ NGUYÊN
-window.changeQty = function (key, delta) { // Export ra window để HTML gọi được
+// ======================================================================
+// SỬA: Thêm tham số event và chặn lan truyền để popup giỏ hàng không bị đóng
+// ======================================================================
+
+// Tăng/giảm số lượng
+window.changeQty = function (key, delta, event) { // Thêm event
+	// CHẶN event lan truyền ra document, ngăn popup đóng
+	if (event && typeof event.stopPropagation === 'function') {
+		event.stopPropagation(); 
+	}
+	
 	cart[key] = (cart[key] || 0) + delta;
 	if (cart[key] <= 0) delete cart[key];
 	saveCart();
 }
 
-// Xóa khỏi giỏ - GIỮ NGUYÊN
-window.removeItem = function (key) { // Export ra window để HTML gọi được
-	if (confirm('Xóa sản phẩm này khỏi giỏ hàng?')) {
+// Xóa khỏi giỏ
+window.removeItem = async function (key, event) { // THÊM ASYNC
+	// CHẶN event lan truyền ra document, ngăn popup đóng
+	if (event && typeof event.stopPropagation === 'function') {
+		event.stopPropagation();
+	}
+	
+	// Thay thế confirm() bằng showCustomConfirm()
+	const confirmDelete = await showCustomConfirm('Xóa sản phẩm này khỏi giỏ hàng?');
+
+	if (confirmDelete) { // Nếu người dùng xác nhận
 		delete cart[key];
 		if (CART_CACHE[key]) delete CART_CACHE[key]; // Xóa khỏi cache
 		saveCart();

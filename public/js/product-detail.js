@@ -556,10 +556,10 @@ function updateCartUI() {
                     <div style="font-size:13px;color:#333">${formatMoney(price)} x ${qty}</div>
                 </div>
                 <div class="qty">
-                     <button class="small-btn" onclick="changeQty('${key}', -1)">-</button>
+                     <button class="small-btn" onclick="changeQty('${key}', -1, event)">-</button>
                      <div style="min-width:20px; text-align:center">${qty}</div>
-                     <button class="small-btn" onclick="changeQty('${key}', 1)">+</button>
-                     <button class="small-btn" style="margin-left:6px; color:red;" onclick="removeItem('${key}')">x</button>
+                     <button class="small-btn" onclick="changeQty('${key}', 1, event)">+</button>
+                     <button class="small-btn" style="margin-left:6px; color:red;" onclick="removeItem('${key}', event)">x</button>
                 </div>
             `;
             cartList.appendChild(item);
@@ -1599,19 +1599,32 @@ window.searchWithImage = async function () {
 // Cart Actions (with Optimistic Update)
 // ĐÃ CHUYỂN logic này vào window.addToCart ở trên
 
-window.changeQty = function (key, delta) {
+// SỬA ĐỔI: Thêm event và chặn lan truyền
+window.changeQty = function (key, delta, event) {
+    // CHẶN event lan truyền ra document, ngăn popup đóng
+    if (event && typeof event.stopPropagation === 'function') {
+		event.stopPropagation(); 
+	}
     cart[key] = (cart[key] || 0) + delta;
     if (cart[key] <= 0) delete cart[key];
     saveCart();
 }
 
-window.removeItem = function (key) {
-    // SỬ DỤNG window.confirm TẠM THỜI (Giữ nguyên cho đến khi có custom confirm modal)
-    if (window.confirm("Xóa sản phẩm này khỏi giỏ hàng?")) {
-        delete cart[key];
-        if (CART_CACHE[key]) delete CART_CACHE[key]; // Xóa khỏi cache
-        saveCart();
-    }
+// Xóa khỏi giỏ
+window.removeItem = async function (key, event) { // THÊM ASYNC
+	// CHẶN event lan truyền ra document, ngăn popup đóng
+	if (event && typeof event.stopPropagation === 'function') {
+		event.stopPropagation();
+	}
+	
+	// Thay thế confirm() bằng showCustomConfirm()
+	const confirmDelete = await showCustomConfirm('Xóa sản phẩm này khỏi giỏ hàng?');
+
+	if (confirmDelete) { // Nếu người dùng xác nhận
+		delete cart[key];
+		if (CART_CACHE[key]) delete CART_CACHE[key]; // Xóa khỏi cache
+		saveCart();
+	}
 }
 
 // KHỞI ĐỘNG

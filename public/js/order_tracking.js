@@ -44,7 +44,7 @@ function showNotification(message, icon = '✅') {
     }, 3000);
 }
 
-// === THÊM: Confirmation Modal Functions ===
+// === Confirmation Modal Functions ===
 function showConfirmationModal(title, message, targetData) {
     $('#confirm-modal-title').textContent = title;
     $('#confirm-modal-message').textContent = message;
@@ -68,7 +68,17 @@ function handleConfirmation(result) {
         currentConfirmTarget = null;
     }
 }
-// ==========================================
+
+// === THÊM MỚI: Custom Confirm Function cho Logout ===
+function showCustomConfirm(message) {
+    // Sử dụng showConfirmationModal đã định nghĩa
+    return showConfirmationModal(
+        'Xác nhận đăng xuất', 
+        message,
+        { action: 'logout' } // Target data
+    ).then(result => result.confirmed); // Chỉ trả về true/false
+}
+// ====================================================
 
 
 // Load orders
@@ -691,9 +701,11 @@ async function updateAccountLink() {
             
             if (logoutLink) {
                 logoutLink.style.display = 'flex';
-                // GIỮ NGUYÊN confirm() ở đây, vì việc thay thế cần một modal xác nhận khác
+                // ĐÃ SỬA: Thay thế confirm() bằng showCustomConfirm()
                 logoutLink.onclick = async () => {
-                    if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                    const confirmLogout = await showCustomConfirm('Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?');
+
+                    if (confirmLogout) {
                         await supabase.auth.signOut();
                         localStorage.removeItem('userName');
                         window.location.reload();
