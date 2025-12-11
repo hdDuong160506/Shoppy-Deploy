@@ -66,24 +66,21 @@
     <div id="sub-status">Vui lòng không tắt trình duyệt.</div>
 
     <script src="js/supabase-init.js"></script>
-    <script src="js/redirect-handler.js"></script>
-
     <script>
         const statusEl = document.getElementById('status');
         const subStatusEl = document.getElementById('sub-status');
         const spinner = document.getElementById('loading-spinner');
 
-        // --- BƯỚC 1: KIỂM TRA LỖI TRÊN URL TRƯỚC (QUAN TRỌNG) ---
-        // Khi bấm Hủy, Google trả về URL dạng: /auth-callback.html#error=access_denied&error_description=...
+        // --- BƯỚC 1: KIỂM TRA LỖI TRÊN URL NGAY LẬP TỨC ---
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const error = hashParams.get('error');
         const errorDesc = hashParams.get('error_description');
 
         if (error) {
-            // ==> XỬ LÝ KHI NGƯỜI DÙNG BẤM HỦY HOẶC LỖI
+            // ==> NẾU CÓ LỖI: HIỆN THÔNG BÁO VÀ DỪNG LUÔN (RETURN)
             console.error("Lỗi OAuth:", error, errorDesc);
 
-            spinner.style.display = 'none'; // Tắt vòng xoay
+            spinner.style.display = 'none';
             statusEl.textContent = "❌ Đăng nhập bị hủy";
             statusEl.className = "error";
             
@@ -91,36 +88,32 @@
                 <p>Bạn đã từ chối cấp quyền hoặc có lỗi xảy ra.</p>
                 <a href="account.html" class="btn-back">Quay lại đăng nhập</a>
             `;
-        } else {
-            // ==> BƯỚC 2: NẾU KHÔNG CÓ LỖI URL THÌ MỚI CHẠY LOGIC ĐĂNG NHẬP
-            supabase.auth.onAuthStateChange((event, session) => {
-                console.log('🔔 [Callback Page] Auth event:', event);
-
-                // Chỉ báo thành công khi sự kiện là SIGNED_IN hoặc INITIAL_SESSION *VÀ* CÓ SESSION
-                if (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && session)) {
-                    if (statusEl && subStatusEl) {
-                        statusEl.textContent = "✅ Đăng nhập thành công!";
-                        statusEl.className = "success";
-                        subStatusEl.textContent = "Đang quay lại trang trước...";
-                    }
-                    // File redirect-handler.js sẽ tự lo phần chuyển hướng
-                } 
-                else if (event === 'PASSWORD_RECOVERY') {
-                    statusEl.textContent = "🔐 Đang chuyển đến trang đặt lại mật khẩu...";
-                    setTimeout(() => {
-                        window.location.href = 'reset-password.html';
-                    }, 1000);
-                }
-                // Trường hợp INITIAL_SESSION mà session lại null (nghĩa là không đăng nhập được)
-                else if (event === 'INITIAL_SESSION' && !session) {
-                   // Có thể do vào thẳng link auth-callback mà không qua Google
-                   spinner.style.display = 'none';
-                   statusEl.textContent = "⚠️ Không tìm thấy phiên đăng nhập";
-                   subStatusEl.innerHTML = `<a href="account.html" class="btn-back">Về trang chủ</a>`;
-                }
-            });
+            
+            // QUAN TRỌNG: Ném lỗi giả để dừng code JS lại, không cho chạy xuống dưới
+            throw new Error("Auth flow cancelled by user"); 
         }
+
+        // --- BƯỚC 2: NẾU KHÔNG CÓ LỖI THÌ MỚI CHẠY LOGIC THÀNH CÔNG ---
+        // (Chỉ chạy khi error == null)
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && session)) {
+                
+                // Cập nhật giao diện
+                statusEl.textContent = "✅ Đăng nhập thành công!";
+                statusEl.className = "success";
+                subStatusEl.textContent = "Đang quay lại trang trước...";
+
+                // Tự động chuyển trang sau 1 giây
+                setTimeout(() => {
+                    const savedUrl = localStorage.getItem('redirect_after_login');
+                    if (savedUrl && !savedUrl.includes('account.html') && !savedUrl.includes('auth-callback')) {
+                        window.location.href = savedUrl;
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }, 1000);
+            } 
+        });
     </script>
 </body>
-
 </html>
