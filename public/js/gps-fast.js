@@ -45,7 +45,7 @@
                 
             },
             // Timeout 5s để không bị treo request quá lâu
-            { timeout: 5000, maximumAge: 0 } 
+            { timeout: Infinity, maximumAge: 0 } 
         );
     } else {
         console.log("🚫 [GPS-FAST] Trình duyệt không hỗ trợ Geolocation");
