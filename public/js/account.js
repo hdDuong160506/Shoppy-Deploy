@@ -144,7 +144,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (error) {
-                msg.textContent = "❌ " + error.message;
+                console.error("Login Error:", error.message); // Log lỗi gốc ra console để dev xem
+                
+                let thongBaoLoi = "Đã có lỗi xảy ra. Vui lòng thử lại.";
+
+                // Kiểm tra nội dung lỗi từ Supabase trả về
+                if (error.message.includes("Invalid login credentials")) {
+                    thongBaoLoi = "Tên tài khoản hoặc Mật khẩu không đúng, vui lòng thử lại!";
+                } else if (error.message.includes("Email not confirmed")) {
+                    thongBaoLoi = "Email chưa được xác thực. Vui lòng kiểm tra hộp thư của bạn.";
+                } else {
+                    // Các lỗi khác (mạng, hệ thống...)
+                    thongBaoLoi = "Lỗi: " + error.message; 
+                }
+
+                msg.textContent = "❌ " + thongBaoLoi;
                 msg.className = "message error";
                 btn.disabled = false;
             } else {
