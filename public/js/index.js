@@ -313,8 +313,11 @@ async function loadSuggestedProducts(locationName = null, useGps = false) {
 
 	const suggestedTitle = $('#suggested-products-title');
 	if (suggestedTitle) {
-		suggestedTitle.style.display = 'block';
+		suggestedTitle.style.display = 'none';
 	}
+
+
+	
 
 	try {
 		// Gọi API với param use_gps
@@ -418,6 +421,12 @@ function renderLocationError() {
 function renderSuggestedProducts(products) {
 	const wrap = $('#suggested-products-list');
 	wrap.innerHTML = '';
+
+	// Xóa nút "Xem sản phẩm gợi ý" nếu tồn tại
+	const backButton = $('#back-to-suggestions-btn');
+	if (backButton) {
+		backButton.remove();
+	}
 
 	if (!products || products.length === 0) {
 		wrap.innerHTML = '<p style="color:#888; text-align:center; grid-column:1/-1; padding:40px 20px;">Không có sản phẩm gợi ý.</p>';
@@ -614,9 +623,6 @@ if (document.getElementById('search_form')) {
 	});
 }
 
-// Hàm hiển thị nút quay lại sản phẩm gợi ý (ĐƯỢC GỌI BÊN TRONG renderSearchResults())
-// BỊ TRÙNG: ĐÃ BỎ HÀM showBackToSuggestionsButton, CHỈ DÙNG addBackToSuggestionsButton
-// function showBackToSuggestionsButton() { /* ... */ }
 
 // ======================================================================
 // PHẦN 3: GHI ÂM GIỌNG NÓI (VOICE SEARCH)
